@@ -1,9 +1,7 @@
 import MainStack from "./stacks/MainStack";
-import ProfileStack from "./stacks/ProfileStack";
 import SettingsStack from "./stacks/SettingsStack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet } from "react-native";
 import ProfileScreen from "../../screens/main/ProfileScreen";
 
 
