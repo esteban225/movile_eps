@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, AppState, StyleSheet, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function AppNavegacion() {
+export default function AppNavigation() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [userToken, setUserToken] = useState(null);

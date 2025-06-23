@@ -4,14 +4,14 @@ import SettingsStack from "./stacks/SettingsStack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { StyleSheet } from "react-native";
-import ProfileScreen from "../../screen/main/ProfileScreen";
+import ProfileScreen from "../../screens/main/ProfileScreen";
 
 
 
 
 const Tab = createBottomTabNavigator();
 
-export default function NavegacionPrincipal() {
+export default function MainNavigation() {
     return (
         <Tab.Navigator
           screenOptions={{
