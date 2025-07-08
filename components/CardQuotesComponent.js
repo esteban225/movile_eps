@@ -1,17 +1,14 @@
-import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
-export default function CardHealthCenters({ healthCenter, onEdit, onDelete }) {
+export default function CardQuotes({ quotes, onEdit, onDelete }) {
     return (
         <View style={styles.card}>
             <View style={styles.info}>
-                <Text style={styles.name}>Nombre: {healthCenter.name}</Text>
-                <Text style={styles.detail}>Tipo de identificación: {healthCenter.identificationType}</Text>
-                <Text style={styles.detail}>Número de identificación: {healthCenter.identificationNumber}</Text>
-                <Text style={styles.detail}>Dirección: {healthCenter.address}</Text>
-                <Text style={styles.detail}>Teléfono: {healthCenter.phone}</Text>
-                <Text style={styles.detail}>Email: {healthCenter.email}</Text>
-                <Text style={styles.detail}>Estado: {healthCenter.status}</Text>
+                <Text style={styles.name}>{quotes.type}</Text>
+                <Text style={styles.detail}>Fecha:  {quotes.date}</Text>
+                <Text style={styles.detail}>Estado: {quotes.status}</Text>
+                <Text style={styles.detail}>Razón: {quotes.reason}</Text>
+                <Text style={styles.detail}>Observaciones: {quotes.observations}</Text>
             </View>
             <View style={styles.actions}>
                 <TouchableOpacity onPress={onEdit} style={styles.iconBtn}>
@@ -22,7 +19,7 @@ export default function CardHealthCenters({ healthCenter, onEdit, onDelete }) {
                 </TouchableOpacity>
             </View>
         </View>
-    );
+    )
 }
 
 const styles = StyleSheet.create({

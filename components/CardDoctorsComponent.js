@@ -5,15 +5,15 @@ export default function CardDoctors({doctor, onEdit, onDelete} ) {
     return (
         <View style={styles.card}>
             <View style={styles.info}>
-                <Text style={styles.nombre}>Nombre: {doctor.name}</Text>
-                <Text style={styles.detalle}>Tipo de identificación: {doctor.identificationType}</Text>
-                <Text style={styles.detalle}>Número de identificación: {doctor.identificationNumber}</Text>
-                <Text style={styles.detalle}>Número de licencia: {doctor.license_number}</Text>
-                <Text style={styles.detalle}>Especialidad: {doctor.specialty}</Text>
-                <Text style={styles.detalle}>Dirección: {doctor.address}</Text>
-                <Text style={styles.detalle}>Teléfono: {doctor.phone}</Text>
-                <Text style={styles.detalle}>Email: {doctor.email}</Text>
-                <Text style={styles.detalle}>Estado: {doctor.status}</Text>
+                <Text style={styles.name}>Nombre: {doctor.name}</Text>
+                <Text style={styles.detail}>Tipo de identificación: {doctor.identificationType}</Text>
+                <Text style={styles.detail}>Número de identificación: {doctor.identificationNumber}</Text>
+                <Text style={styles.detail}>Número de licencia: {doctor.license_number}</Text>
+                <Text style={styles.detail}>Especialidad: {doctor.specialty}</Text>
+                <Text style={styles.detail}>Dirección: {doctor.address}</Text>
+                <Text style={styles.detail}>Teléfono: {doctor.phone}</Text>
+                <Text style={styles.detail}>Email: {doctor.email}</Text>
+                <Text style={styles.detail}>Estado: {doctor.status}</Text>
             </View>
             <View style={styles.actions}>
                 <TouchableOpacity onPress={onEdit} style={styles.iconBtn}>
@@ -45,12 +45,12 @@ const styles = StyleSheet.create({
     info: {
         flex: 1,
     },
-    nombre: {
+    name: {
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 4,
     },
-    detalle: {
+    detail: {
         fontSize: 14,
         color: '#555',
     },

@@ -1,18 +1,19 @@
-import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
-export default function CardHealthCenters({ healthCenter, onEdit, onDelete }) {
+export default function CardUserEps({ userEps, onEdit, onDelete }) {
     return (
         <View style={styles.card}>
             <View style={styles.info}>
-                <Text style={styles.name}>Nombre: {healthCenter.name}</Text>
-                <Text style={styles.detail}>Tipo de identificación: {healthCenter.identificationType}</Text>
-                <Text style={styles.detail}>Número de identificación: {healthCenter.identificationNumber}</Text>
-                <Text style={styles.detail}>Dirección: {healthCenter.address}</Text>
-                <Text style={styles.detail}>Teléfono: {healthCenter.phone}</Text>
-                <Text style={styles.detail}>Email: {healthCenter.email}</Text>
-                <Text style={styles.detail}>Estado: {healthCenter.status}</Text>
+                <Text style={styles.name}></Text>
+                <Text style={styles.detail}>{userEps.name}</Text>
+                <Text style={styles.detail}>{userEps.email}</Text>
+                <Text style={styles.detail}>{userEps.identificationType}</Text>
+                <Text style={styles.detail}>{userEps.identificationNumber}</Text>
+                <Text style={styles.detail}>{userEps.phone}</Text>
+                <Text style={styles.detail}>{userEps.role}</Text>
+                <Text style={styles.detail}>{userEps.address}</Text>
             </View>
+
             <View style={styles.actions}>
                 <TouchableOpacity onPress={onEdit} style={styles.iconBtn}>
                     <Ionicons name="create-outline" size={24} color="#1976D2" />
@@ -22,7 +23,7 @@ export default function CardHealthCenters({ healthCenter, onEdit, onDelete }) {
                 </TouchableOpacity>
             </View>
         </View>
-    );
+    )
 }
 
 const styles = StyleSheet.create({
