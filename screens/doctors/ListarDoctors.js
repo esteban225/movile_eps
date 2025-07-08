@@ -1,13 +1,11 @@
-
 import { View, Text, FlatList, Alert, ActivityIndicator, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons'; // Importa Ionicons
 import BotonComponent from "../../components/BottonComponent"; // Asegúrate de que la ruta sea correcta
-import MedicoCard from "../../components/MedicoCard";
+import DoctorCard from "../../components/DoctorCard";
 import { useNavigation } from "@react-navigation/native";
 
 export default function DetalleDoctors() {
-
     const [doctors, setDoctors] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigation = useNavigation();
@@ -19,13 +17,14 @@ export default function DetalleDoctors() {
             if (result.success) {
                 setDoctors(result.data);
             } else {
-                Alert.alert("Error", result.message || "No se pudierón cargas los doctors");
+                Alert.alert("Error", result.message || "No se pudierón cargas los Doctores");
             }
         } catch (error) {
-            Alert.alert("Error", "No se pudierón cargas los doctors");
+            Alert.alert("Error", "No se pudierón cargas los Doctores");
         } finally {
             setLoading(false);
         }
+
     };
 
     useEffect(() => {
@@ -33,11 +32,10 @@ export default function DetalleDoctors() {
         return unsubscribe;
     }, [navigation]);
 
-
     const handleEliminar = (id) => {
         Alert.alert(
-            "Eliminar Medico",
-            "¿Estás seguro de que deseas eliminar este medico?",
+            "Eliminar Doctor",
+            "¿Estás seguro de que deseas eliminar este doctor?",
             [
                 { text: "Cancelar", style: "cancel" },
                 {
@@ -46,15 +44,15 @@ export default function DetalleDoctors() {
 
                     onPress: async () => {
                         try {
-                            const result = await eliminarMedico(id);
+                            const result = await eliminarDoctor(id);
                             if (result.success) {
                                 // setEspecialidades (especialidades.filter((e) => e.id !== id));
                                 handleDoctors();
                             } else {
-                                Alert.alert("Error", result.message || "No se pudo eliminar el Medico");
+                                Alert.alert("Error", result.message || "No se pudo eliminar el Doctor");
                             }
                         } catch (error) {
-                            Alert.alert("Error", "No se pudo eliminar el medico");
+                            Alert.alert("Error", "No se pudo eliminar el doctor");
                         }
                     },
                 }
@@ -63,7 +61,7 @@ export default function DetalleDoctors() {
     }
 
     const handleCrear = () => {
-        navigation.navigate('CrearMedico');
+        navigation.navigate('CrearDoctor');
     };
 
     if (loading) {
@@ -74,30 +72,31 @@ export default function DetalleDoctors() {
         );
     }
 
-    const handleEditar = (medico) => {
-        navigation.navigate("EditarMedico", { medico });
+    const handleEditar = (doctor) => {
+        navigation.navigate("EditarDoctor", { doctor });
 
 
     }
+
     return (
         <View style={{ flex: 1 }}>
             <FlatList
                 data={doctors}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
-                    <MedicoCard
-                        medico={item}
+                    <DoctorCard
+                        doctor={item}
                         onEdit={() => handleEditar(item)}
                         onDelete={() => handleEliminar(item.id)}
                     />
                 )}
-                ListEmptyComponent={<Text style={styles.emptyText}>No Hay Doctors Registrados. </Text>}
+                ListEmptyComponent={<Text style={styles.emptyText}>No Hay Doctores Registrados. </Text>}
             />
 
             <TouchableOpacity style={styles.botonCrear} onPress={handleCrear}>
                 <View style={styles.botonCrearContent}>
                     <Ionicons name="add-circle-outline" size={24} color="#fff" style={styles.botonCrearIcon} />
-                    <Text style={styles.textoBotonCrear}>Nuevo Medico</Text>
+                    <Text style={styles.textoBotonCrear}>Nuevo Doctor</Text>
                 </View>
             </TouchableOpacity>
         </View>
