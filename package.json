@@ -26,7 +26,8 @@
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
     "react-native-vector-icons": "^10.2.0",
-    "undefined": "\\"
+    "undefined": "\\",
+    "@react-native-picker/picker": "2.11.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
