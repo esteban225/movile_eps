@@ -2,9 +2,8 @@
 import { View, Text, FlatList, Alert, ActivityIndicator, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons'; // Importa Ionicons
-import BotonComponent from "../../components/BottonComponent"; // Asegúrate de que la ruta sea correcta
-import MedicoCard from "../../components/MedicoCard";
 import { useNavigation } from "@react-navigation/native";
+import CardDoctors from '../../components/CardDoctorsComponent';
 
 export default function DetalleDoctors() {
 
@@ -36,8 +35,8 @@ export default function DetalleDoctors() {
 
     const handleEliminar = (id) => {
         Alert.alert(
-            "Eliminar Medico",
-            "¿Estás seguro de que deseas eliminar este medico?",
+            "Eliminar Doctor",
+            "¿Estás seguro de que deseas eliminar este doctor?",
             [
                 { text: "Cancelar", style: "cancel" },
                 {
@@ -46,15 +45,15 @@ export default function DetalleDoctors() {
 
                     onPress: async () => {
                         try {
-                            const result = await eliminarMedico(id);
+                            const result = await eliminarDoctor(id);
                             if (result.success) {
                                 // setEspecialidades (especialidades.filter((e) => e.id !== id));
                                 handleDoctors();
                             } else {
-                                Alert.alert("Error", result.message || "No se pudo eliminar el Medico");
+                                Alert.alert("Error", result.message || "No se pudo eliminar el Doctor");
                             }
                         } catch (error) {
-                            Alert.alert("Error", "No se pudo eliminar el medico");
+                            Alert.alert("Error", "No se pudo eliminar el doctor");
                         }
                     },
                 }
@@ -63,7 +62,7 @@ export default function DetalleDoctors() {
     }
 
     const handleCrear = () => {
-        navigation.navigate('CrearMedico');
+        navigation.navigate('CreateDoctor');
     };
 
     if (loading) {
@@ -74,8 +73,8 @@ export default function DetalleDoctors() {
         );
     }
 
-    const handleEditar = (medico) => {
-        navigation.navigate("EditarMedico", { medico });
+    const handleEditar = (doctor) => {
+        navigation.navigate("EditDoctor", { doctor });
 
 
     }
@@ -85,8 +84,8 @@ export default function DetalleDoctors() {
                 data={doctors}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
-                    <MedicoCard
-                        medico={item}
+                    <CardDoctors
+                        doctor={item}
                         onEdit={() => handleEditar(item)}
                         onDelete={() => handleEliminar(item.id)}
                     />
@@ -97,7 +96,7 @@ export default function DetalleDoctors() {
             <TouchableOpacity style={styles.botonCrear} onPress={handleCrear}>
                 <View style={styles.botonCrearContent}>
                     <Ionicons name="add-circle-outline" size={24} color="#fff" style={styles.botonCrearIcon} />
-                    <Text style={styles.textoBotonCrear}>Nuevo Medico</Text>
+                    <Text style={styles.textoBotonCrear}>Nuevo Doctor</Text>
                 </View>
             </TouchableOpacity>
         </View>

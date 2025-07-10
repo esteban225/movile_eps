@@ -1,7 +1,6 @@
 import React, { useState, useEffect, act } from "react";
 import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { useRoute } from '@react-navigation/native';
-import BotonComponent from "../../components/BottonComponent";
 
 export default function DetalleDoctors({ navigation }) {
     const route = useRoute();
