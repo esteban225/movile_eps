@@ -1,9 +1,9 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons, Feather } from "@expo/vector-icons";
 
-import InicioStack from "./Stacks/InicioStack";
-import PerfilesStack from "./Stacks/PerfilStack";
-import ConfiguracionesStack from "./Stacks/ConfiguracionStack";
+import InicioStack from "./stacks/MainStack";
+import PerfilesStack from "./stacks/ProfileStack";
+import ConfiguracionesStack from "./stacks/SettingsStack";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 const Tab = createBottomTabNavigator();

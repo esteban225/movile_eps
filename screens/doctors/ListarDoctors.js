@@ -1,7 +1,7 @@
 import { View, Text, FlatList, Alert, ActivityIndicator, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons'; // Importa Ionicons
-import DoctorCard from "../../components/DoctorCard";
+import CardDoctors from "../../components/CardDoctorsComponent";
 import { useNavigation } from "@react-navigation/native";
 import { eliminarDoctor, listarDoctors } from '../../src/services/DoctorsService';
 
@@ -87,7 +87,7 @@ export default function ListarDoctors() {
                 data={doctors}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
-                    <DoctorCard
+                    <CardDoctors
                         doctor={item}
                         onEdit={() => handleEditar(item)}
                         onDelete={() => handleEliminar(item.id)}

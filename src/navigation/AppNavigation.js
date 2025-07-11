@@ -60,6 +60,7 @@ export default function AppNavigation() {
         );
     }
 
+    const user = true;
     return (
         <NavigationContainer>
             {userToken ? <MainNavigation /> : <AuthNavigation />}

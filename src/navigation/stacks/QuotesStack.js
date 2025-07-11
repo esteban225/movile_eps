@@ -7,7 +7,7 @@ import EditarQuotes from "../../../screens/quotes/EditarQuotes";
 
 const Stack = createStackNavigator();
 
-export default function CitasStack () {
+export default function QuotesStack () {
     return (
         <Stack.Navigator>
             <Stack.Screen 

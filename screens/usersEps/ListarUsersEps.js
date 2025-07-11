@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons'; // Importa Ionicons
 import { useNavigation } from "@react-navigation/native";
 import CardUserEps from '../../components/CardUserEpsComponent';
+import { eliminarUserEps, listarUserEps } from '../../src/services/UsersEpsService';
 
 export default function DetalleUserEps() {
     const [userEps, setUserEps] = useState([]);
