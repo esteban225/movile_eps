@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons'; // Importa Ionicons
 import { useNavigation } from "@react-navigation/native";
 import CardHealthCenters from '../../components/CardHealthCentersComponent';
+import { eliminarHealthCenters, listarHealthCenters } from '../../src/services/HealthCentersService';
 
 export default function DetalleHealthCenters() {
 
@@ -45,7 +46,7 @@ export default function DetalleHealthCenters() {
 
                     onPress: async () => {
                         try {
-                            const result = await EliminarHealthCenters(id);
+                            const result = await eliminarHealthCenters(id);
                             if (result.success) {
                                 // setEspecialidades (especialidades.filter((e) => e.id !== id));
                                 handleHealthCenters();

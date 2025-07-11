@@ -2,6 +2,7 @@ import React, { useState, useEffect, act } from "react";
 import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { useRoute } from '@react-navigation/native';
 import BotonComponent from "../../components/BottonComponent";
+import { crearHealthCenters, editarHealthCenters } from "../../src/services/HealthCentersService";
 
 export default function DetalleHealthCenters({ navigation }) {
     const route = useRoute();
@@ -29,7 +30,7 @@ export default function DetalleHealthCenters({ navigation }) {
         let result;
         try {
             if (esEdicion) {
-                result = await editarHealthCenter(healthCenter.id, {
+                result = await editarHealthCenters(healthCenter.id, {
                     name: name,
                     email: email,
                     phone: phone,
@@ -38,7 +39,7 @@ export default function DetalleHealthCenters({ navigation }) {
                     address: address
                 });
             } else {
-                result = await crearHealthCenter({
+                result = await crearHealthCenters({
                     name: name,
                     email: email,
                     phone: phone,

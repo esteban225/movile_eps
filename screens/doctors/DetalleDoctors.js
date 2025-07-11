@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons'; // Importa Ionicons
 import { useNavigation } from "@react-navigation/native";
 import CardDoctors from '../../components/CardDoctorsComponent';
+import { eliminarDoctor, listarDoctors } from '../../src/services/DoctorsService';
 
 export default function DetalleDoctors() {
 

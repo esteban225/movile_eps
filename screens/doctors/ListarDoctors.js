@@ -1,9 +1,9 @@
 import { View, Text, FlatList, Alert, ActivityIndicator, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons'; // Importa Ionicons
-import BotonComponent from "../../components/BottonComponent"; // Asegúrate de que la ruta sea correcta
 import DoctorCard from "../../components/DoctorCard";
 import { useNavigation } from "@react-navigation/native";
+import { eliminarDoctor, listarDoctors } from '../../src/services/DoctorsService';
 
 export default function DetalleDoctors() {
     const [doctors, setDoctors] = useState([]);
@@ -19,7 +19,8 @@ export default function DetalleDoctors() {
             } else {
                 Alert.alert("Error", result.message || "No se pudierón cargas los Doctores");
             }
-        } catch (error) {
+        } catch (err) {
+            console.error("Error al cargar los doctores:", err);
             Alert.alert("Error", "No se pudierón cargas los Doctores");
         } finally {
             setLoading(false);
@@ -42,18 +43,20 @@ export default function DetalleDoctors() {
                     text: "Eliminar",
                     style: "destructive",
 
-                    onPress: async () => {
-                        try {
-                            const result = await eliminarDoctor(id);
-                            if (result.success) {
-                                // setEspecialidades (especialidades.filter((e) => e.id !== id));
-                                handleDoctors();
-                            } else {
-                                Alert.alert("Error", result.message || "No se pudo eliminar el Doctor");
+                    onPress: () => {
+                        (async () => {
+                            try {
+                                const result = await eliminarDoctor(id);
+                                if (result.success) {
+                                    handleDoctors();
+                                } else {
+                                    Alert.alert("Error", result.message || "No se pudo eliminar el Doctor");
+                                }
+                            } catch (error) {
+                                console.error("Error al eliminar el doctor:", error);
+                                Alert.alert("Error", "No se pudo eliminar el doctor");
                             }
-                        } catch (error) {
-                            Alert.alert("Error", "No se pudo eliminar el doctor");
-                        }
+                        })();
                     },
                 }
             ]

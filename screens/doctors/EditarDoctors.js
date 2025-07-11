@@ -1,6 +1,7 @@
 import React, { useState, useEffect, act } from "react";
 import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { useRoute } from '@react-navigation/native';
+import { crearDoctor, editarDoctor } from "../../src/services/DoctorsService";
 
 export default function DetalleDoctors({ navigation }) {
     const route = useRoute();
