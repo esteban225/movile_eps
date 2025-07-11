@@ -5,7 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import CardHealthCenters from '../../components/CardHealthCentersComponent';
 import { eliminarHealthCenters, listarHealthCenters } from '../../src/services/HealthCentersService';
 
-export default function DetalleHealthCenters() {
+export default function ListarHealthCenters() {
     const [healthCenters, setHealthCenters] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigation = useNavigation();

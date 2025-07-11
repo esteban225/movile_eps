@@ -1,9 +1,17 @@
-import { Text } from "react-native";
+import React from "react";
+import { createStackNavigator } from "@react-navigation/stack";
+import ProfileScreen from "../../../screens/main/ProfileScreen";
 
-export default function ProfileStack() {
+const Stack = createStackNavigator();
+
+export default function PerfilesStack () {
     return (
-
-        <Text>
-            hola</Text>
-    )
+        <Stack.Navigator>
+            <Stack.Screen
+                name= "Perfil" 
+                component={ProfileScreen}
+                options={{ title: "Perfiles" }}
+            />
+        </Stack.Navigator>
+    );
 }

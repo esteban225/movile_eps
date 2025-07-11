@@ -3,7 +3,7 @@ import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity, ActivityIn
 import { useRoute } from '@react-navigation/native';
 import { crearDoctor, editarDoctor } from "../../src/services/DoctorsService";
 
-export default function DetalleDoctors({ navigation }) {
+export default function EditarDoctors({ navigation }) {
     const route = useRoute();
 
     const doctor = route.params?.doctor;

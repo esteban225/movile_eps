@@ -5,7 +5,7 @@ import DoctorCard from "../../components/DoctorCard";
 import { useNavigation } from "@react-navigation/native";
 import { eliminarDoctor, listarDoctors } from '../../src/services/DoctorsService';
 
-export default function DetalleDoctors() {
+export default function ListarDoctors() {
     const [doctors, setDoctors] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigation = useNavigation();

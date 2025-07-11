@@ -4,7 +4,7 @@ import { useRoute } from '@react-navigation/native';
 import BotonComponent from "../../components/BottonComponent";
 import { crearHealthCenters, editarHealthCenters } from "../../src/services/HealthCentersService";
 
-export default function DetalleHealthCenters({ navigation }) {
+export default function EditarHealthCenters({ navigation }) {
     const route = useRoute();
 
     const healthCenter = route.params?.healthCenter;
