@@ -7,7 +7,6 @@ import { ScrollView } from 'react-native-gesture-handler';
 import Fontisto from '@expo/vector-icons/Fontisto';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 const { width } = Dimensions.get('window');
 const itemWidth = (width / 2) - 30;
@@ -34,7 +33,6 @@ export default function Inicio() {
                         <Fontisto name="date" size={45} color="black" style={styles.iconShadow} />
                         <Text style={styles.iconLabel}>Citas</Text>
                     </TouchableOpacity>
-
 
                     <TouchableOpacity style={styles.iconContainer} onPress={() => navigateToFlow('Eps')}>
                         <MaterialIcons name="health-and-safety" size={45} color="silver" style={styles.iconShadow} />
