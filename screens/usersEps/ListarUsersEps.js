@@ -1,159 +1,345 @@
-import { View, Text, FlatList, Alert, ActivityIndicator, TouchableOpacity, StyleSheet } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { Ionicons } from '@expo/vector-icons'; // Importa Ionicons
-import { useNavigation } from "@react-navigation/native";
-import CardUserEps from '../../components/CardUserEpsComponent';
-import { eliminarUserEps, listarUserEps } from '../../src/services/UsersEpsService';
+import React, { useState, useCallback, useMemo } from 'react';
+import {
+    View,
+    Text,
+    FlatList,
+    Alert,
+    ActivityIndicator,
+    TouchableOpacity,
+    StyleSheet,
+    StatusBar,
+    TextInput,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
-export default function DetalleUserEps() {
+import CardUserEps from '../../components/CardUserEpsComponent'; // Path to your CardUserEpsComponent
+import {
+    listarUserEps,
+    eliminarUserEps,
+} from '../../src/services/UsersEpsService'; // Ensure this path is correct
+
+// --- Modern & Clean Color Palette (Identical to ListarHealthCenters for consistency) ---
+const Colors = {
+    primary: '#4CAF50', // A vibrant, friendly green
+    primaryDark: '#388E3C', // A darker version for contrasts and FAB
+    accent: '#FFC107', // A bright yellow for highlighted actions or warnings
+    background: '#F0F2F5', // A very light gray for the general screen background
+    cardBackground: '#FFFFFF', // Pure white for cards and elevated elements
+    textPrimary: '#212121', // Dark charcoal for main text
+    textSecondary: '#757575', // Medium gray for secondary text or details
+    textLight: '#FFFFFF', // White for text on dark backgrounds
+    success: '#28A745', // Green for success (more standard)
+    danger: '#DC3545', // Red for destructive actions or errors (more standard)
+    shadow: 'rgba(0,0,0,0.1)', // Light shadow for a subtle effect
+    inputBorder: '#CFD8DC', // Softer color for input borders
+    textPlaceholder: '#9E9E9E', // Color for input placeholder and empty text
+    headerBackground: '#FFFFFF', // Header background
+    border: '#E0E0E0', // Subtle border for the header
+};
+
+export default function ListarUserEps() {
     const [userEps, setUserEps] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [searchText, setSearchText] = useState('');
     const navigation = useNavigation();
 
-    const handleUserEps = async () => {
+    const fetchUserEps = useCallback(async () => {
         setLoading(true);
         try {
             const result = await listarUserEps();
             if (result.success) {
                 setUserEps(result.data);
             } else {
-                Alert.alert("Error", result.message || "No se pudierón cargas los usuarios");
+                Alert.alert('Error al Cargar', result.message || 'No se pudieron cargar los usuarios EPS.');
             }
         } catch (error) {
-            Alert.alert("Error", "No se pudierón cargas los usuarios");
+            console.error('Error fetching user EPS:', error);
+            Alert.alert('Error de Conexión', 'No se pudo obtener la información. Verifica tu red.');
         } finally {
             setLoading(false);
         }
+    }, []);
 
-    };
+    useFocusEffect(
+        useCallback(() => {
+            fetchUserEps();
+            // Sets the status bar text color to dark for a light header background
+            StatusBar.setBarStyle('dark-content');
+            // Resets status bar style when the screen loses focus
+            return () => StatusBar.setBarStyle('default');
+        }, [fetchUserEps])
+    );
 
-    useEffect(() => {
-        const unsubscribe = navigation.addListener('focus', handleUserEps);
-        return unsubscribe;
-    }, [navigation]);
+    const filteredUserEps = useMemo(() => {
+        if (!searchText) return userEps;
+        const lowercasedSearchText = searchText.toLowerCase();
+        // Filter by name or document number
+        return userEps.filter((user) =>
+            user?.name?.toLowerCase().includes(lowercasedSearchText) ||
+            user?.documentNumber?.toLowerCase().includes(lowercasedSearchText)
+        );
+    }, [searchText, userEps]);
 
-    const handleEliminar = (id) => {
+    const handleEliminarUserEps = useCallback((id) => {
         Alert.alert(
-            "Eliminar usuario",
-            "¿Estás seguro de que deseas eliminar este usuarios?",
+            'Eliminar Usuario EPS',
+            '¿Estás seguro de que deseas eliminar este usuario? Esta acción es irreversible.',
             [
-                { text: "Cancelar", style: "cancel" },
+                { text: 'Cancelar', style: 'cancel' },
                 {
-                    text: "Eliminar",
-                    style: "destructive",
-
+                    text: 'Eliminar',
+                    style: 'destructive',
                     onPress: async () => {
                         try {
                             const result = await eliminarUserEps(id);
                             if (result.success) {
-                                // setEspecialidades (especialidades.filter((e) => e.id !== id));
-                                handleUserEps();
+                                Alert.alert('Éxito', 'Usuario EPS eliminado correctamente.');
+                                fetchUserEps(); // Reload the list after deletion
                             } else {
-                                Alert.alert("Error", result.message || "No se pudo eliminar el usuario");
+                                Alert.alert('Error', result.message || 'No se pudo eliminar el usuario.');
                             }
                         } catch (error) {
-                            Alert.alert("Error", "No se pudo eliminar el usuario");
+                            console.error('Error deleting user EPS:', error);
+                            Alert.alert('Error', 'Hubo un problema al intentar eliminar el usuario. Por favor, inténtalo de nuevo.');
                         }
                     },
-                }
+                },
             ]
-        )
-    }
+        );
+    }, [fetchUserEps]);
 
-    const handleCrear = () => {
-        navigation.navigate('CrearUserEps');
+    const handleEditarUserEps = (userEpsItem) => {
+        // Navigates to the 'EditarUserEps' screen, passing the user EPS data
+        navigation.navigate('EditarUserEps', { userEps: userEpsItem });
     };
+
+    const handleCrearUserEps = useCallback(() => {
+        // Navigates to the 'EditarUserEps' screen without data for creation
+        navigation.navigate('EditarUserEps');
+    }, [navigation]);
+
+    const handleDetailUserEps = useCallback(
+        (userEpsItem) => {
+            // Navigates to a 'DetalleUserEps' screen to show more details
+            // Make sure you have a 'DetalleUserEps' route configured in your navigator.
+            navigation.navigate('DetalleUserEps', { userEps: userEpsItem });
+        },
+        [navigation]
+    );
 
     if (loading) {
         return (
-            <View style={styles.centered}>
-                <ActivityIndicator size="large" color="#1976D2" />
+            <View style={styles.centeredContainer}>
+                <ActivityIndicator size="large" color={Colors.primary} />
+                <Text style={styles.loadingText}>Cargando usuarios EPS...</Text>
             </View>
         );
     }
 
-    const handleEditar = (userEps) => {
-        navigation.navigate("EditarUserEps", { userEps });
-
-
-    }
-
     return (
-        <View style={{ flex: 1 }}>
+        <View style={styles.container}>
+
+            {/* Search Bar Component */}
+            <View style={styles.searchContainer}>
+                <Ionicons name="search" size={20} color={Colors.textPlaceholder} style={styles.searchIcon} />
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder="Buscar usuario por nombre o documento..."
+                    placeholderTextColor={Colors.textPlaceholder}
+                    value={searchText}
+                    onChangeText={setSearchText}
+                    clearButtonMode="while-editing" // Provides a clear button on iOS
+                />
+                {searchText.length > 0 && (
+                    <TouchableOpacity
+                        onPress={() => setSearchText('')}
+                        accessibilityLabel="Limpiar búsqueda"
+                        style={styles.clearSearchButton}
+                    >
+                        <Ionicons name="close-circle" size={20} color={Colors.textPlaceholder} />
+                    </TouchableOpacity>
+                )}
+            </View>
+
+            {/* FlatList for the list of User EPS */}
             <FlatList
-                data={userEps}
+                data={filteredUserEps}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
                     <CardUserEps
                         userEps={item}
-                        onEdit={() => handleEditar(item)}
-                        onDelete={() => handleEliminar(item.id)}
+                        onDetail={() => handleDetailUserEps(item)} // Handle detail action
+                        onEdit={() => handleEditarUserEps(item)}
+                        onDelete={() => handleEliminarUserEps(item.id)}
+                        cardStyle={styles.userEpsCard} // Apply consistent card style
+                        textStyle={styles.userEpsCardText} // Apply consistent text style
                     />
                 )}
-                ListEmptyComponent={<Text style={styles.emptyText}>No Hay usuarios Registrados. </Text>}
+                ListEmptyComponent={
+                    <View style={styles.emptyListContainer}>
+                        <Ionicons name="people-circle-outline" size={70} color={Colors.textPlaceholder} />
+                        <Text style={styles.emptyText}>
+                            {searchText ? 'No hay coincidencias para tu búsqueda.' : '¡Ups! Parece que no hay usuarios EPS registrados.'}
+                        </Text>
+                        {!searchText && <Text style={styles.emptySubtitle}>Sé el primero en añadir uno tocando el botón de abajo.</Text>}
+                    </View>
+                }
+                // Apply horizontal padding to the contentContainerStyle for card margins
+                contentContainerStyle={[
+                    styles.flatListContent,
+                    filteredUserEps.length === 0 && styles.emptyListContent,
+                ]}
             />
 
-            <TouchableOpacity style={styles.botonCrear} onPress={handleCrear}>
-                <View style={styles.botonCrearContent}>
-                    <Ionicons name="add-circle-outline" size={24} color="#fff" style={styles.botonCrearIcon} />
-                    <Text style={styles.textoBotonCrear}>Nuevo Centro de salud</Text>
-                </View>
+            {/* Floating Action Button to add new User EPS */}
+            <TouchableOpacity
+                style={styles.createButton}
+                onPress={handleCrearUserEps}
+                activeOpacity={0.8}
+            >
+                <Ionicons name="add" size={30} color={Colors.textLight} />
             </TouchableOpacity>
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F8F8F8',
-        paddingHorizontal: 10,
-        paddingTop: 10,
+        backgroundColor: Colors.background,
     },
-    centered: {
+    centeredContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#F8F8F8',
+        backgroundColor: Colors.background,
     },
-    emptyText: {
+    loadingText: {
+        marginTop: 15,
         fontSize: 16,
-        color: '#7F8C8D',
-        textAlign: 'center',
-        marginTop: 50,
+        color: Colors.textSecondary,
     },
+    // Styles for the screen header (consistent with ListarHealthCenters)
+    header: {
+        backgroundColor: Colors.headerBackground,
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+        paddingTop: StatusBar.currentHeight + 10 || 40, // Ensure space below status bar
+        borderBottomWidth: 1,
+        borderBottomColor: Colors.border,
+        shadowColor: Colors.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        elevation: 2,
+        alignItems: 'center', // Center the title
+    },
+    headerTitle: {
+        fontSize: 24,
+        fontWeight: '700',
+        color: Colors.textPrimary,
+    },
+    // Styles for the search bar (consistent with ListarHealthCenters)
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: Colors.cardBackground,
+        borderRadius: 10,
+        paddingHorizontal: 15,
+        marginHorizontal: 16,
+        marginTop: 20, // More space from the header
+        marginBottom: 15,
+        shadowColor: Colors.shadow,
+        shadowOffset: { width: 0, height: 3 }, // Slightly more pronounced shadow
+        shadowOpacity: 0.15,
+        shadowRadius: 5,
+        elevation: 4,
+        borderWidth: 1,
+        borderColor: Colors.inputBorder,
+    },
+    searchIcon: {
+        marginRight: 10,
+    },
+    searchInput: {
+        flex: 1,
+        height: 50, // Slightly increased input height
+        fontSize: 17, // Slightly larger text
+        color: Colors.textPrimary,
+    },
+    clearSearchButton: {
+        marginLeft: 10,
+        padding: 5,
+    },
+    // Styles for when the list is empty (consistent with ListarHealthCenters)
     emptyListContainer: {
         flexGrow: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingVertical: 60,
+        paddingHorizontal: 20,
     },
-    botonCrear: { // Estilo para el TouchableOpacity
-        backgroundColor: '#1976D2', // Color de fondo
-        padding: 15,
-        borderRadius: 8,
+    emptyText: {
+        fontSize: 20,
+        color: Colors.textPrimary,
+        textAlign: 'center',
+        marginTop: 20,
+        fontWeight: '600',
+    },
+    emptySubtitle: {
+        fontSize: 16,
+        color: Colors.textSecondary,
+        textAlign: 'center',
+        marginTop: 8,
+    },
+    // Styles for FlatList contentContainer when not empty
+    flatListContent: {
+        paddingHorizontal: 16, // Apply horizontal padding here for the cards
+        paddingBottom: 100, // Space so the FAB doesn't cover the last item
+    },
+    emptyListContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
         alignItems: 'center',
-        margin: 10,
-        // Sombra para un efecto más bonito
-        shadowColor: "#000",
+    },
+    // Styles for each User EPS card (consistent with healthCenterCard)
+    userEpsCard: {
+        backgroundColor: Colors.cardBackground,
+        borderRadius: 12,
+        padding: 18,
+        marginBottom: 12, // Space between cards
+        shadowColor: Colors.shadow,
         shadowOffset: {
             width: 0,
-            height: 3,
+            height: 4,
         },
-        shadowOpacity: 0.27,
-        shadowRadius: 4.65,
-        elevation: 6,
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 8,
     },
-    botonCrearContent: { // Contenedor interno para el icono y el texto
-        flexDirection: 'row',
-        alignItems: 'center',
+    userEpsCardText: {
+        color: Colors.textPrimary,
+        fontSize: 17,
+        fontWeight: '500',
+    },
+    // Styles for the floating action button (FAB) (consistent with ListarHealthCenters)
+    createButton: {
+        backgroundColor: Colors.primaryDark,
+        width: 60,
+        height: 60,
+        borderRadius: 30,
         justifyContent: 'center',
-    },
-    botonCrearIcon: { // Estilo para el icono
-        marginRight: 8, // Espacio entre el icono y el texto
-    },
-    textoBotonCrear: { // Estilo para el texto del botón
-        color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: 'bold',
+        alignItems: 'center',
+        position: 'absolute',
+        bottom: 30,
+        right: 30,
+        shadowColor: Colors.primaryDark,
+        shadowOffset: {
+            width: 0,
+            height: 10,
+        },
+        shadowOpacity: 0.4,
+        shadowRadius: 15,
+        elevation: 10,
     },
 });

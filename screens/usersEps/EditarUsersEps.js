@@ -1,44 +1,57 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import {
+    View,
+    Text,
+    TextInput,
+    StyleSheet,
+    TouchableOpacity,
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    KeyboardAvoidingView,
+    Platform,
+} from "react-native";
 import { useRoute } from '@react-navigation/native';
-import { Picker } from '@react-native-picker/picker'; // Import the Picker component
+import { Picker } from '@react-native-picker/picker';
 
-// --- Mock API Functions (Replace with your actual API calls) ---
-// You should import these from your services file, e.g.:
-// import { crearUserEps, editarUserEps } from '../../services/userEpsApi';
+// API services
+import { crearUserEps, editarUserEps } from '../../src/services/UsersEpsService';
+import { listarHealthCenters } from "../../src/services/HealthCentersService";
 
-const crearUserEps = async (userData) => {
-    console.log("Simulating API call: Creating User EPS with data:", userData);
-    return new Promise(resolve => setTimeout(() => resolve({ success: true, message: "Usuario creado exitosamente (Simulado)" }), 1500));
+// Colores personalizados
+const Colors = {
+    primary: '#4CAF50',
+    primaryDark: '#388E3C',
+    background: '#F0F2F5',
+    cardBackground: '#FFFFFF',
+    textPrimary: '#212121',
+    textSecondary: '#757575',
+    textLight: '#FFFFFF',
+    danger: '#DC3545',
+    shadow: 'rgba(0,0,0,0.1)',
+    inputBorder: '#CFD8DC',
+    inputFocusBorder: '#9E9E9E',
+    textPlaceholder: '#9E9E9E',
 };
-
-const editarUserEps = async (id, userData) => {
-    console.log(`Simulating API call: Editing User EPS ${id} with data:`, userData);
-    return new Promise(resolve => setTimeout(() => resolve({ success: true, message: "Usuario actualizado exitosamente (Simulado)" }), 1500));
-};
-// ---------------------------------------------------------------
 
 export default function DetalleUserEps({ navigation }) {
     const route = useRoute();
     const userEps = route.params?.userEps;
 
-    // Initialize states with existing data or sensible defaults for pickers
+    const [healthcenters_id, setHealthCenterId] = useState(userEps?.healthcenters_id?.toString() || "");
     const [name, setName] = useState(userEps?.name || "");
     const [email, setEmail] = useState(userEps?.email || "");
     const [phone, setPhone] = useState(userEps?.phone || "");
-    const [identificationType, setIdentificationType] = useState(userEps?.identificationType || "CC"); // Default value
+    const [identificationType, setIdentificationType] = useState(userEps?.identificationType || "CC");
     const [identificationNumber, setIdentificationNumber] = useState(userEps?.identificationNumber || "");
-    const [userRole, setUserRole] = useState(userEps?.type || "Afiliado"); // Renamed 'type' to 'userRole' for clarity
-    const [status, setStatus] = useState(userEps?.status || "Activo"); // Default value
+    const [role, setUserRole] = useState(userEps?.role || "Afiliado");
+    const [status, setStatus] = useState(userEps?.status || "Activo");
     const [address, setAddress] = useState(userEps?.address || "");
-    // Note: 'role' state here seems redundant if 'type' (userRole) covers it.
-    // If 'role' is different from 'type', you can keep it and add another picker.
-    // const [role, setRole] = useState(userEps?.role || ""); 
 
+    const [healthCentersList, setHealthCentersList] = useState([]);
     const [loading, setLoading] = useState(false);
     const esEdicion = !!userEps;
 
-    // Options for Identification Type Picker
     const identificationTypes = [
         { label: "Cédula de Ciudadanía", value: "CC" },
         { label: "Tarjeta de Identidad", value: "TI" },
@@ -46,228 +59,295 @@ export default function DetalleUserEps({ navigation }) {
         { label: "Cédula de Extranjería", value: "CE" },
     ];
 
-    // Options for User Role/Type Picker (assuming 'type' means role)
-    const userRoles = [
+    const roles = [
         { label: "Afiliado", value: "Afiliado" },
         { label: "Administrador", value: "Administrador" },
         { label: "Profesional de la Salud", value: "Profesional" },
         { label: "Soporte", value: "Soporte" },
     ];
 
-    // Options for Status Picker
     const userStatuses = [
-        { label: "Activo", value: "Activo" },
-        { label: "Inactivo", value: "Inactivo" },
-        { label: "Pendiente", value: "Pendiente" },
-        { label: "Bloqueado", value: "Bloqueado" },
+        { label: "Activo", value: "1" },
+        { label: "Inactivo", value: "0" },
     ];
 
+    useEffect(() => {
+        const loadHealthCenters = async () => {
+            try {
+                const result = await listarHealthCenters();
+                if (result.success && Array.isArray(result.data)) {
+                    setHealthCentersList(result.data);
+                } else {
+                    console.error("Error al cargar centros de salud:", result.message);
+                    Alert.alert("Error", result.message || "Error al cargar los centros de salud.");
+                }
+            } catch (error) {
+                console.error("Error inesperado:", error);
+                Alert.alert("Error", error.message || "Error inesperado al cargar los centros.");
+            }
+        };
+        loadHealthCenters();
+    }, []);
+
     const handleGuardar = async () => {
-        // --- Corrected validation: Removed 'apellido' ---
-        if (!name || !email || !phone || !identificationType || !identificationNumber || !userRole || !status || !address) {
-            Alert.alert("Campos requeridos", "Por favor, complete todos los campos obligatorios.");
+        if (!name || !email || !phone || !identificationType || !identificationNumber || !role || !status || !address || !healthcenters_id) {
+            Alert.alert("Campos requeridos", "Por favor, complete todos los campos.");
             return;
         }
 
         setLoading(true);
-        let result;
         try {
-            const userDataToSave = {
+            const data = {
+                healthcenters_id,
                 name,
                 email,
                 phone,
                 identificationType,
                 identificationNumber,
-                type: userRole, // Send 'userRole' as 'type' to the API
+                type: role,
                 status,
                 address
-                // If 'role' is a separate field, add it here too: role: role
             };
 
-            if (esEdicion) {
-                result = await editarUserEps(userEps.id, userDataToSave);
-            } else {
-                result = await crearUserEps(userDataToSave);
-            }
+            const result = esEdicion
+                ? await editarUserEps(userEps.id, data)
+                : await crearUserEps(data);
 
             if (result.success) {
-                Alert.alert("Éxito", esEdicion ? "Usuario actualizado correctamente" : "Usuario creado correctamente");
+                Alert.alert("Éxito", esEdicion ? "Usuario actualizado." : "Usuario creado.");
                 navigation.goBack();
             } else {
-                Alert.alert("Error", result.message || "No se pudo guardar el Usuario.");
+                Alert.alert("Error", result.message || "No se pudo guardar el usuario.");
             }
         } catch (error) {
-            console.error("Error al guardar Usuario:", error);
-            Alert.alert("Error", error.message || "Ocurrió un error inesperado al guardar el Usuario.");
+            console.error("Error al guardar usuario:", error);
+            Alert.alert("Error", error.message || "Error inesperado al guardar.");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>{esEdicion ? "Editar Usuario EPS" : "Nuevo Usuario EPS"}</Text>
+        <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 20}
+        >
+            <ScrollView contentContainerStyle={styles.scrollViewContent}>
+                <View style={styles.container}>
+                    <Text style={styles.title}>
+                        {esEdicion ? "Editar Usuario EPS" : "Nuevo Usuario EPS"}
+                    </Text>
 
-            <TextInput
-                style={styles.input}
-                placeholder="Nombre"
-                value={name}
-                onChangeText={setName}
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Teléfono"
-                value={phone}
-                onChangeText={setPhone}
-                keyboardType="phone-pad"
-            />
+                    {/* Health Center Picker */}
+                    <View style={styles.pickerContainer}>
+                        <Text style={styles.pickerLabel}>Seleccione un asociado</Text>
+                        <Picker
+                            selectedValue={healthcenters_id}
+                            onValueChange={(itemValue) => setHealthCenterId(itemValue)}
+                            style={styles.picker}
+                            itemStyle={styles.pickerItem}
+                        >
+                            <Picker.Item label="-- Seleccione --" value="" />
+                            {healthCentersList.map((center) => (
+                                <Picker.Item key={center.id} label={center.name} value={String(center.id)} />
+                            ))}
+                        </Picker>
+                    </View>
 
-            {/* Picker for Identification Type */}
-            <View style={styles.pickerContainer}>
-                <Text style={styles.pickerLabel}>Tipo de Identificación:</Text>
-                <Picker
-                    selectedValue={identificationType}
-                    onValueChange={(itemValue, itemIndex) => setIdentificationType(itemValue)}
-                    style={styles.picker}
-                >
-                    {identificationTypes.map((item, index) => (
-                        <Picker.Item key={index} label={item.label} value={item.value} />
-                    ))}
-                </Picker>
-            </View>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Nombre completo"
+                        placeholderTextColor={Colors.textPlaceholder}
+                        value={name}
+                        onChangeText={setName}
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Email"
+                        placeholderTextColor={Colors.textPlaceholder}
+                        value={email}
+                        onChangeText={setEmail}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Teléfono"
+                        placeholderTextColor={Colors.textPlaceholder}
+                        value={phone}
+                        onChangeText={setPhone}
+                        keyboardType="phone-pad"
+                    />
 
-            <TextInput
-                style={styles.input}
-                placeholder="Número de Identificación"
-                value={identificationNumber}
-                onChangeText={setIdentificationNumber}
-                keyboardType="numeric" // Appropriate for identification numbers
-            />
+                    <View style={styles.pickerContainer}>
+                        <Text style={styles.pickerLabel}>Tipo de Identificación</Text>
+                        <Picker
+                            selectedValue={identificationType}
+                            onValueChange={setIdentificationType}
+                            style={styles.picker}
+                            itemStyle={styles.pickerItem}
+                        >
+                            {identificationTypes.map((item, index) => (
+                                <Picker.Item key={index} label={item.label} value={item.value} />
+                            ))}
+                        </Picker>
+                    </View>
 
-            {/* Picker for User Role/Type */}
-            <View style={styles.pickerContainer}>
-                <Text style={styles.pickerLabel}>Tipo de Usuario:</Text>
-                <Picker
-                    selectedValue={userRole}
-                    onValueChange={(itemValue, itemIndex) => setUserRole(itemValue)}
-                    style={styles.picker}
-                >
-                    {userRoles.map((item, index) => (
-                        <Picker.Item key={index} label={item.label} value={item.value} />
-                    ))}
-                </Picker>
-            </View>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Número de Identificación"
+                        placeholderTextColor={Colors.textPlaceholder}
+                        value={identificationNumber}
+                        onChangeText={setIdentificationNumber}
+                        keyboardType="numeric"
+                    />
 
-            {/* Picker for Status */}
-            <View style={styles.pickerContainer}>
-                <Text style={styles.pickerLabel}>Estado:</Text>
-                <Picker
-                    selectedValue={status}
-                    onValueChange={(itemValue, itemIndex) => setStatus(itemValue)}
-                    style={styles.picker}
-                >
-                    {userStatuses.map((item, index) => (
-                        <Picker.Item key={index} label={item.label} value={item.value} />
-                    ))}
-                </Picker>
-            </View>
+                    <View style={styles.pickerContainer}>
+                        <Text style={styles.pickerLabel}>Tipo de Usuario</Text>
+                        <Picker
+                            selectedValue={role}
+                            onValueChange={setUserRole}
+                            style={styles.picker}
+                            itemStyle={styles.pickerItem}
+                        >
+                            {roles.map((item, index) => (
+                                <Picker.Item key={index} label={item.label} value={item.value} />
+                            ))}
+                        </Picker>
+                    </View>
 
-            <TextInput
-                style={[styles.input, styles.textArea]}
-                placeholder="Dirección"
-                value={address}
-                onChangeText={setAddress}
-                multiline
-                numberOfLines={3}
-                textAlignVertical="top"
-            />
+                    <View style={styles.pickerContainer}>
+                        <Text style={styles.pickerLabel}>Estado</Text>
+                        <Picker
+                            selectedValue={status}
+                            onValueChange={setStatus}
+                            style={styles.picker}
+                            itemStyle={styles.pickerItem}
+                        >
+                            {userStatuses.map((item, index) => (
+                                <Picker.Item key={index} label={item.label} value={item.value} />
+                            ))}
+                        </Picker>
+                    </View>
 
-            <TouchableOpacity style={styles.boton} onPress={handleGuardar} disabled={loading}>
-                {loading ? (
-                    <ActivityIndicator color="#fff" />
-                ) : (
-                    <Text style={styles.textoBoton}>{esEdicion ? "Guardar cambios" : "Crear Usuario"}</Text>
-                )}
-            </TouchableOpacity>
+                    <TextInput
+                        style={[styles.input, styles.textArea]}
+                        placeholder="Dirección"
+                        placeholderTextColor={Colors.textPlaceholder}
+                        value={address}
+                        onChangeText={setAddress}
+                        multiline
+                        numberOfLines={4}
+                        textAlignVertical="top"
+                    />
 
-        </View>
+                    <TouchableOpacity
+                        style={styles.boton}
+                        onPress={handleGuardar}
+                        disabled={loading}
+                        activeOpacity={0.8}
+                    >
+                        {loading ? (
+                            <ActivityIndicator color={Colors.textLight} />
+                        ) : (
+                            <Text style={styles.textoBoton}>
+                                {esEdicion ? "Guardar cambios" : "Crear Usuario"}
+                            </Text>
+                        )}
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
+    scrollViewContent: {
+        flexGrow: 1,
+    },
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: '#f8f8f8',
+        backgroundColor: Colors.background,
     },
     title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
+        fontSize: 26,
+        fontWeight: '700',
+        marginBottom: 25,
         textAlign: 'center',
-        color: '#333',
+        color: Colors.textPrimary,
     },
     input: {
-        height: 50,
-        borderColor: '#ddd',
+        height: 55,
+        borderColor: Colors.inputBorder,
         borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 15,
-        marginBottom: 15,
-        backgroundColor: '#fff',
-        fontSize: 16,
+        borderRadius: 10,
+        paddingHorizontal: 18,
+        marginBottom: 18,
+        backgroundColor: Colors.cardBackground,
+        fontSize: 17,
+        color: Colors.textPrimary,
+        shadowColor: Colors.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 3,
+        elevation: 2,
     },
     textArea: {
-        height: 100, // Increased height for multiline text areas
+        height: 120,
+        paddingTop: 15,
     },
     pickerContainer: {
-        borderColor: '#ddd',
+        borderColor: Colors.inputBorder,
         borderWidth: 1,
-        borderRadius: 8,
-        marginBottom: 15,
-        backgroundColor: '#fff',
-        paddingHorizontal: 5,
-        justifyContent: 'center', // Vertically centers content in the picker container
+        borderRadius: 10,
+        marginBottom: 18,
+        backgroundColor: Colors.cardBackground,
+        paddingHorizontal: 10,
+        justifyContent: 'center',
+        shadowColor: Colors.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 3,
+        elevation: 2,
     },
     pickerLabel: {
         fontSize: 14,
-        color: '#666',
+        color: Colors.textSecondary,
         paddingLeft: 10,
-        paddingTop: 5,
-        position: 'absolute', // Position label above the picker
-        top: -10, // Adjust as needed
-        backgroundColor: '#f8f8f8', // Match background to hide border line underneath
+        paddingTop: 0,
+        position: 'absolute',
+        top: -10,
+        backgroundColor: Colors.background,
         paddingHorizontal: 5,
         left: 10,
-        zIndex: 1, // Ensure label is above picker
+        zIndex: 1,
     },
     picker: {
-        height: 50, // Standard height for input fields
+        height: 55,
         width: '100%',
+        color: Colors.textPrimary,
+    },
+    pickerItem: {
+        fontSize: 17,
+        color: Colors.textPrimary,
     },
     boton: {
-        backgroundColor: '#007bff',
-        paddingVertical: 15,
-        borderRadius: 8,
+        backgroundColor: Colors.primary,
+        paddingVertical: 18,
+        borderRadius: 10,
         alignItems: 'center',
-        marginTop: 20,
-        elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 3,
+        marginTop: 30,
+        elevation: 5,
+        shadowColor: Colors.primaryDark,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
     },
     textoBoton: {
-        color: '#fff',
-        fontSize: 18,
+        color: Colors.textLight,
+        fontSize: 19,
         fontWeight: 'bold',
     },
 });

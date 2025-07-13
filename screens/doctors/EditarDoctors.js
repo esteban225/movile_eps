@@ -1,143 +1,353 @@
-import React, { useState, useEffect, act } from "react";
-import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+    View,
+    Text,
+    TextInput,
+    StyleSheet,
+    TouchableOpacity,
+    ActivityIndicator,
+    Alert,
+    ScrollView,
+    KeyboardAvoidingView,
+    Platform,
+} from "react-native";
 import { useRoute } from '@react-navigation/native';
-import { crearDoctor, editarDoctor } from "../../src/services/DoctorsService";
+import { Picker } from '@react-native-picker/picker';
 
-export default function EditarDoctors({ navigation }) {
+// API services
+import { crearDoctor, editarDoctor } from '../../src/services/DoctorsService';
+import { listarHealthCenters } from "../../src/services/HealthCentersService";
+
+// Colores personalizados
+const Colors = {
+    primary: '#4CAF50',
+    primaryDark: '#388E3C',
+    background: '#F0F2F5',
+    cardBackground: '#FFFFFF',
+    textPrimary: '#212121',
+    textSecondary: '#757575',
+    textLight: '#FFFFFF',
+    danger: '#DC3545',
+    shadow: 'rgba(0,0,0,0.1)',
+    inputBorder: '#CFD8DC',
+    inputFocusBorder: '#9E9E9E',
+    textPlaceholder: '#9E9E9E',
+};
+
+export default function DetalleDoctor({ navigation }) {
     const route = useRoute();
+    const doctors = route.params?.doctors;
 
-    const doctor = route.params?.doctor;
+    const [healthcenters_id, setHealthCenterId] = useState(doctors?.healthcenters_id?.toString() || "");
+    const [name, setName] = useState(doctors?.name || "");
+    const [email, setEmail] = useState(doctors?.email || "");
+    const [phone, setPhone] = useState(doctors?.phone || "");
+    const [identificationType, setIdentificationType] = useState(doctors?.identificationType || "CC");
+    const [identificationNumber, setIdentificationNumber] = useState(doctors?.identificationNumber || "");
+    const [role, setUserRole] = useState(doctors?.role || "Afiliado");
+    const [status, setStatus] = useState(doctors?.status || "Activo");
+    const [address, setAddress] = useState(doctors?.address || "");
 
-    const [name, setName] = useState(doctor?.name || "");
-    const [email, setEmail] = useState(doctor?.email || "");
-    const [phone, setPhone] = useState(doctor?.phone || "");
-    const [identificationType, setIdentificationType] = useState(doctor?.identificationType || "");
-    const [identificationNumber, setIdentificationNumber] = useState(doctor?.identificationNumber || "");
-    const [status, setStatus] = useState(doctor?.status || "");
-    const [address, setAddress] = useState(doctor?.address || "");
-
+    const [healthCentersList, setHealthCentersList] = useState([]);
     const [loading, setLoading] = useState(false);
+    const esEdicion = !!doctors;
 
-    const esEdicion = !!doctor;
+    const identificationTypes = [
+        { label: "Cédula de Ciudadanía", value: "CC" },
+        { label: "Tarjeta de Identidad", value: "TI" },
+        { label: "Pasaporte", value: "PAS" },
+        { label: "Cédula de Extranjería", value: "CE" },
+    ];
+
+    const roles = [
+        { label: "Afiliado", value: "Afiliado" },
+        { label: "Administrador", value: "Administrador" },
+        { label: "Profesional de la Salud", value: "Profesional" },
+        { label: "Soporte", value: "Soporte" },
+    ];
+
+    const doctorStatuses = [
+        { label: "Activo", value: "1" },
+        { label: "Inactivo", value: "0" },
+    ];
+
+    useEffect(() => {
+        const loadHealthCenters = async () => {
+            try {
+                const result = await listarHealthCenters();
+                if (result.success && Array.isArray(result.data)) {
+                    setHealthCentersList(result.data);
+                } else {
+                    console.error("Error al cargar centros de salud:", result.message);
+                    Alert.alert("Error", result.message || "Error al cargar los centros de salud.");
+                }
+            } catch (error) {
+                console.error("Error inesperado:", error);
+                Alert.alert("Error", error.message || "Error inesperado al cargar los centros.");
+            }
+        };
+        loadHealthCenters();
+    }, []);
 
     const handleGuardar = async () => {
-        if (!name || !apellido || !email || !phone || !identificationType || !identificationNumber || !status || !address) {
-            Alert.alert("Campos requeridos", "Por favor, ingrese todos los campos");
+        if (!name || !email || !phone || !identificationType || !identificationNumber || !role || !status || !address || !healthcenters_id) {
+            Alert.alert("Campos requeridos", "Por favor, complete todos los campos.");
             return;
         }
 
         setLoading(true);
-        let result;
         try {
-            if (esEdicion) {
-                result = await editarDoctor(doctor.id, {
-                    name: name,
-                    email: email,
-                    phone: phone,
-                    identificationType: identificationType,
-                    identificationNumber: identificationNumber,
-                    status: status,
-                    address: address
-                });
-            } else {
-                result = await crearDoctor({
-                    name: name,
-                    email: email,
-                    phone: phone,
-                    identificationType: identificationType,
-                    identificationNumber: identificationNumber,
-                    status: status,
-                    address: address
-                });
-            }
+            const data = {
+                healthcenters_id,
+                name,
+                email,
+                phone,
+                identificationType,
+                identificationNumber,
+                type: role,
+                status,
+                address
+            };
+
+            const result = esEdicion
+                ? await editarDoctor(doctors.id, data)
+                : await crearDoctor(data);
 
             if (result.success) {
-                Alert.alert("Éxito", esEdicion ? "Doctor actualizado correctamente" : "Doctor creado correctamente");
+                Alert.alert("Éxito", esEdicion ? "Usuario actualizado." : "Usuario creado.");
                 navigation.goBack();
             } else {
-                Alert.alert("Error", result.message || "No se pudo guardar el doctor");
+                Alert.alert("Error", result.message || "No se pudo guardar el usuario.");
             }
         } catch (error) {
-            console.error("Error al guardar doctor:", error);
-            Alert.alert("Error", error.message || "Ocurrió un error inesperado al guardar la doctor.");
+            console.error("Error al guardar usuario:", error);
+            Alert.alert("Error", error.message || "Error inesperado al guardar.");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>{esEdicion ? "Editar Doctor" : "Nuevo Doctor"}</Text>
+        <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 20}
+        >
+            <ScrollView contentContainerStyle={styles.scrollViewContent}>
+                <View style={styles.container}>
+                    <Text style={styles.title}>
+                        {esEdicion ? "Editar Usuario EPS" : "Nuevo Usuario EPS"}
+                    </Text>
 
-            <TextInput
-                style={styles.input}
-                placeholder="Name"
-                value={name}
-                onChangeText={setName}
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Phone"
-                value={phone}
-                onChangeText={setPhone}
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Tipo Documento"
-                value={identificationType}
-                onChangeText={setIdentificationType}
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Número Documento"
-                value={identificationNumber}
-                onChangeText={setIdentificationNumber}
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Status"
-                value={status}
-                onChangeText={setStatus}
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Dorección"
-                value={address}
-                onChangeText={setAddress}
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-            />
+                    {/* Health Center Picker */}
+                    <View style={styles.pickerContainer}>
+                        <Text style={styles.pickerLabel}>Seleccione un asociado</Text>
+                        <Picker
+                            selectedValue={healthcenters_id}
+                            onValueChange={(itemValue) => setHealthCenterId(itemValue)}
+                            style={styles.picker}
+                            itemStyle={styles.pickerItem}
+                        >
+                            <Picker.Item label="-- Seleccione --" value="" />
+                            {healthCentersList.map((center) => (
+                                <Picker.Item key={center.id} label={center.name} value={String(center.id)} />
+                            ))}
+                        </Picker>
+                    </View>
 
-            <TouchableOpacity style={styles.boton} onPress={handleGuardar} disabled={loading}>
-                {loading ? (
-                    <ActivityIndicator color="#fff" />
-                ) : (
-                    <Text style={styles.textoBoton} >{esEdicion ? "Guardar cambios" : "Crear doctor"}</Text>
-                )}
-            </TouchableOpacity>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Nombre completo"
+                        placeholderTextColor={Colors.textPlaceholder}
+                        value={name}
+                        onChangeText={setName}
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Email"
+                        placeholderTextColor={Colors.textPlaceholder}
+                        value={email}
+                        onChangeText={setEmail}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Teléfono"
+                        placeholderTextColor={Colors.textPlaceholder}
+                        value={phone}
+                        onChangeText={setPhone}
+                        keyboardType="phone-pad"
+                    />
 
-        </View>
+                    <View style={styles.pickerContainer}>
+                        <Text style={styles.pickerLabel}>Tipo de Identificación</Text>
+                        <Picker
+                            selectedValue={identificationType}
+                            onValueChange={setIdentificationType}
+                            style={styles.picker}
+                            itemStyle={styles.pickerItem}
+                        >
+                            {identificationTypes.map((item, index) => (
+                                <Picker.Item key={index} label={item.label} value={item.value} />
+                            ))}
+                        </Picker>
+                    </View>
+
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Número de Identificación"
+                        placeholderTextColor={Colors.textPlaceholder}
+                        value={identificationNumber}
+                        onChangeText={setIdentificationNumber}
+                        keyboardType="numeric"
+                    />
+
+                    <View style={styles.pickerContainer}>
+                        <Text style={styles.pickerLabel}>Tipo de Usuario</Text>
+                        <Picker
+                            selectedValue={role}
+                            onValueChange={setUserRole}
+                            style={styles.picker}
+                            itemStyle={styles.pickerItem}
+                        >
+                            {roles.map((item, index) => (
+                                <Picker.Item key={index} label={item.label} value={item.value} />
+                            ))}
+                        </Picker>
+                    </View>
+
+                    <View style={styles.pickerContainer}>
+                        <Text style={styles.pickerLabel}>Estado</Text>
+                        <Picker
+                            selectedValue={status}
+                            onValueChange={setStatus}
+                            style={styles.picker}
+                            itemStyle={styles.pickerItem}
+                        >
+                            {doctorStatuses.map((item, index) => (
+                                <Picker.Item key={index} label={item.label} value={item.value} />
+                            ))}
+                        </Picker>
+                    </View>
+
+                    <TextInput
+                        style={[styles.input, styles.textArea]}
+                        placeholder="Dirección"
+                        placeholderTextColor={Colors.textPlaceholder}
+                        value={address}
+                        onChangeText={setAddress}
+                        multiline
+                        numberOfLines={4}
+                        textAlignVertical="top"
+                    />
+
+                    <TouchableOpacity
+                        style={styles.boton}
+                        onPress={handleGuardar}
+                        disabled={loading}
+                        activeOpacity={0.8}
+                    >
+                        {loading ? (
+                            <ActivityIndicator color={Colors.textLight} />
+                        ) : (
+                            <Text style={styles.textoBoton}>
+                                {esEdicion ? "Guardar cambios" : "Crear Usuario"}
+                            </Text>
+                        )}
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 }
+
+const styles = StyleSheet.create({
+    scrollViewContent: {
+        flexGrow: 1,
+    },
+    container: {
+        flex: 1,
+        padding: 20,
+        backgroundColor: Colors.background,
+    },
+    title: {
+        fontSize: 26,
+        fontWeight: '700',
+        marginBottom: 25,
+        textAlign: 'center',
+        color: Colors.textPrimary,
+    },
+    input: {
+        height: 55,
+        borderColor: Colors.inputBorder,
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingHorizontal: 18,
+        marginBottom: 18,
+        backgroundColor: Colors.cardBackground,
+        fontSize: 17,
+        color: Colors.textPrimary,
+        shadowColor: Colors.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    textArea: {
+        height: 120,
+        paddingTop: 15,
+    },
+    pickerContainer: {
+        borderColor: Colors.inputBorder,
+        borderWidth: 1,
+        borderRadius: 10,
+        marginBottom: 18,
+        backgroundColor: Colors.cardBackground,
+        paddingHorizontal: 10,
+        justifyContent: 'center',
+        shadowColor: Colors.shadow,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    pickerLabel: {
+        fontSize: 14,
+        color: Colors.textSecondary,
+        paddingLeft: 10,
+        paddingTop: 0,
+        position: 'absolute',
+        top: -10,
+        backgroundColor: Colors.background,
+        paddingHorizontal: 5,
+        left: 10,
+        zIndex: 1,
+    },
+    picker: {
+        height: 55,
+        width: '100%',
+        color: Colors.textPrimary,
+    },
+    pickerItem: {
+        fontSize: 17,
+        color: Colors.textPrimary,
+    },
+    boton: {
+        backgroundColor: Colors.primary,
+        paddingVertical: 18,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginTop: 30,
+        elevation: 5,
+        shadowColor: Colors.primaryDark,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+    },
+    textoBoton: {
+        color: Colors.textLight,
+        fontSize: 19,
+        fontWeight: 'bold',
+    },
+});

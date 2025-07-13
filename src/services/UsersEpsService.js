@@ -87,3 +87,17 @@ export const editarUserEps = async (id, data) => { // Asegúrate de que 'id' se 
         };
     }
 };
+export const obtenerUserEpsPorId = async (id) => {
+    try {
+        const response = await api.get(`/userseps/${id}`);
+        console.log("Respuesta obtener por ID:", response.data);
+        return { success: true, data: response.data };
+    } catch (error) {
+        const errorMessage = error.response ? formatErrorMessage(error.response.data) : "Error de conexión";
+        console.error("Error al obtener por ID:", error.response ? error.response.data : error.message);
+        return {
+            success: false,
+            message: errorMessage
+        };
+    }
+};

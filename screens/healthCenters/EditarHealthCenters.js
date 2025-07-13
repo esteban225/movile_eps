@@ -66,7 +66,7 @@ export default function EditarHealthCenters({ navigation }) {
 
             if (result.success) {
                 Alert.alert("Éxito", esEdicion ? "Centro de salud actualizado correctamente." : "Centro de salud creado correctamente.");
-                navigation.goBack();
+                navigation.navigate('ListarHealthCenter');
             } else {
                 Alert.alert("Error", result.message || "No se pudo guardar el centro de salud. Intente de nuevo.");
             }
