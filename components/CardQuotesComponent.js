@@ -1,59 +1,64 @@
-import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-export default function CardQuotes({ quotes, onEdit, onDelete }) {
+const Colors = {
+    cardBackground: '#FFFFFF',
+    textPrimary: '#212121',
+    textSecondary: '#757575',
+    danger: '#DC3545',
+    primary: '#4CAF50',
+    accent: '#FFC107',
+    shadow: 'rgba(0,0,0,0.1)',
+};
+
+export default function CardQuotes({ quotes, onDetail, cardStyle, textStyle }) {
     return (
-        <View style={styles.card}>
-            <View style={styles.info}>
-                <Text style={styles.name}>{quotes.type}</Text>
-                <Text style={styles.detail}>Fecha:  {quotes.date}</Text>
-                <Text style={styles.detail}>Estado: {quotes.status}</Text>
-                <Text style={styles.detail}>Razón: {quotes.reason}</Text>
-                <Text style={styles.detail}>Observaciones: {quotes.observations}</Text>
+        <TouchableOpacity style={[styles.card, cardStyle]} onPress={onDetail} activeOpacity={0.85}>
+            <View style={styles.content}>
+                <View style={styles.textContainer}>
+                    <Text style={styles.title}>🩺 {quotes.type}</Text>
+                    <Text style={styles.subtitle}>📅 {quotes.date}</Text>
+                    <Text style={styles.subtitle}>📌 Estado: {quotes.status}</Text>
+                    <Text style={styles.subtitle}>📝 {quotes.reason}</Text>
+                </View>
+                <Ionicons name="information-circle-outline" size={26} color={Colors.accent} />
             </View>
-            <View style={styles.actions}>
-                <TouchableOpacity onPress={onEdit} style={styles.iconBtn}>
-                    <Ionicons name="create-outline" size={24} color="#1976D2" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={onDelete} style={styles.iconBtn}>
-                    <Ionicons name="trash-outline" size={24} color="#D32F2F" />
-                </TouchableOpacity>
-            </View>
-        </View>
-    )
+        </TouchableOpacity>
+    );
 }
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        padding: 16,
+        backgroundColor: Colors.cardBackground,
+        borderRadius: 12,
+        padding: 20,
         marginVertical: 8,
+        shadowColor: Colors.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 6,
+        elevation: 5,
+    },
+    content: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
     },
-    info: {
+    textContainer: {
         flex: 1,
+        marginRight: 10,
     },
-    name: {
+    title: {
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: '700',
+        color: Colors.textPrimary,
         marginBottom: 4,
     },
-    detail: {
+    subtitle: {
         fontSize: 14,
-        color: '#555',
-    },
-    actions: {
-        flexDirection: 'row',
-    },
-    iconBtn: {
-        marginLeft: 10,
+        color: Colors.textSecondary,
+        fontWeight: '500',
+        marginBottom: 2,
     },
 });

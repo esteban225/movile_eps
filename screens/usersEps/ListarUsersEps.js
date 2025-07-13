@@ -145,7 +145,7 @@ export default function ListarUserEps() {
                 <Ionicons name="search" size={20} color={Colors.textPlaceholder} style={styles.searchIcon} />
                 <TextInput
                     style={styles.searchInput}
-                    placeholder="Buscar usuario por nombre o documento..."
+                    placeholder="Buscar usuario por nombre..."
                     placeholderTextColor={Colors.textPlaceholder}
                     value={searchText}
                     onChangeText={setSearchText}

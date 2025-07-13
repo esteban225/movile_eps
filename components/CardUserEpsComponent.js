@@ -22,9 +22,9 @@ export default function CardUserEps({ userEps, onDetail, cardStyle, textStyle })
         <TouchableOpacity style={styles.card} onPress={onDetail} activeOpacity={0.85}>
             <View style={styles.content}>
                 <View style={styles.textContainer}>
-                    <Text style={styles.name}>{userEps.name}</Text>
+                    <Text style={styles.name}>🙋 {userEps.name}</Text>
                     {/* Concatenamos ID y número de identificación en una sola línea */}
-                    <Text style={styles.identification}>ID: {userEps.identificationNumber}</Text>
+                    <Text style={styles.identification}>🪪 {userEps.identificationNumber}</Text>
                 </View>
 
                 {/* Acciones de Edición y Eliminación como iconos */}

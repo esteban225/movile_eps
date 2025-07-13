@@ -1,38 +1,34 @@
 import React from 'react';
 import { View, Text, StyleSheet, Alert, TouchableOpacity, ScrollView } from 'react-native';
-import { AntDesign, Ionicons } from '@expo/vector-icons';
+import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { eliminarUserEps } from '../../src/services/UsersEpsService'; // Asegúrate de que esta ruta sea correcta
+import { eliminarUserEps } from '../../src/services/UsersEpsService';
 
-// --- Paleta de Colores Moderna y Consistente ---
 const Colors = {
-    background: '#F5F7FA', // Un gris muy claro, casi blanco para el fondo principal
-    cardBackground: '#FFFFFF', // Blanco puro para los contenedores de información
-    primary: '#007AFF', // Un azul vibrante, moderno y amigable
-    success: '#34C759', // Verde para estados activos o éxito
-    danger: '#FF3B30', // Rojo para estados inactivos o acciones destructivas
-    textPrimary: '#1C1C1E', // Gris oscuro casi negro para el texto principal
-    textSecondary: '#6A6A6A', // Gris medio para etiquetas o texto secundario
-    border: '#E0E0E0', // Un gris claro para bordes sutiles
-    shadow: 'rgba(0, 0, 0, 0.1)', // Sombra ligera
+    background: '#F5F7FA',
+    cardBackground: '#FFFFFF',
+    primary: '#007AFF',
+    success: '#34C759',
+    danger: '#FF3B30',
+    textPrimary: '#1C1C1E',
+    textSecondary: '#6A6A6A',
+    border: '#E0E0E0',
+    shadow: 'rgba(0, 0, 0, 0.1)',
 };
 
 export default function DetalleUsersEps() {
     const route = useRoute();
     const navigation = useNavigation();
-    // userEps contiene todos los datos que pasas desde la pantalla anterior
     const { userEps } = route.params;
 
-    // Función para manejar la navegación a la pantalla de edición
     const handleEdit = () => {
         navigation.navigate("EditarUserEps", { userEps });
     };
 
-    // Función para manejar la eliminación con confirmación
     const handleDelete = () => {
         Alert.alert(
             'Confirmar Eliminación',
-            `¿Estás seguro de que deseas eliminar a ${userEps.name}? Esta acción es irreversible.`,
+            `¿Eliminar a ${userEps.name}? Esta acción no se puede deshacer.`,
             [
                 { text: 'Cancelar', style: 'cancel' },
                 {
@@ -42,14 +38,14 @@ export default function DetalleUsersEps() {
                         try {
                             const result = await eliminarUserEps(userEps.id);
                             if (result.success) {
-                                Alert.alert('Éxito', 'Centro de salud eliminado correctamente.');
-                                navigation.goBack(); // Volver a la lista después de eliminar
+                                Alert.alert('Éxito', 'Usuario eliminado correctamente.');
+                                navigation.goBack();
                             } else {
-                                Alert.alert('Error', result.message || 'No se pudo eliminar el centro de salud.');
+                                Alert.alert('Error', result.message || 'No se pudo eliminar.');
                             }
                         } catch (err) {
                             console.error('Error al eliminar:', err);
-                            Alert.alert('Error', 'Hubo un problema al eliminar el centro. Por favor, inténtalo de nuevo.');
+                            Alert.alert('Error', 'Hubo un problema al eliminar el usuario.');
                         }
                     },
                 },
@@ -57,107 +53,60 @@ export default function DetalleUsersEps() {
         );
     };
 
-    // Determinamos el texto y color del estado basado en el valor de userEps.status
     const statusText = userEps.status === 1 ? 'Activo' : 'Inactivo';
     const statusColor = userEps.status === 1 ? Colors.success : Colors.danger;
 
     return (
-        // Usamos ScrollView para permitir el desplazamiento si el contenido es largo
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
             <View style={styles.header}>
-                {/* Icono representativo para el encabezado */}
-                <Ionicons name="medical-outline" size={60} color={Colors.primary} style={styles.headerIcon} />
-                {/* Título principal con el nombre del centro */}
+                <Ionicons name="medical-outline" size={60} color={Colors.primary} />
                 <Text style={styles.title}>{userEps.name}</Text>
-                {/* Subtítulo descriptivo */}
-                <Text style={styles.subtitle}>Detalles del Centro de Salud</Text>
+                <Text style={styles.subtitle}>Detalles del Usuario EPS</Text>
             </View>
 
-            {/* Tarjeta con la información detallada */}
             <View style={styles.infoCard}>
-                {/* Item de Estado */}
-                <View style={styles.infoItem}>
-                    <Ionicons name="pulse-outline" size={20} color={Colors.textSecondary} style={styles.itemIcon} />
-                    <View>
-                        <Text style={styles.label}>Estado:</Text>
-                        <Text style={[styles.value, { color: statusColor, fontWeight: '600' }]}>{statusText}</Text>
-                    </View>
-                </View>
-                <View style={styles.separator} />
-
-                {/* Item de Nombre */}
-                <View style={styles.infoItem}>
-                    <Ionicons name="person" size={20} color={Colors.textSecondary} style={styles.itemIcon} />
-                    <View>
-                        <Text style={styles.label}>Nombre:</Text>
-                        <Text style={styles.value}>{userEps.name || 'No especificado'}</Text>
-                    </View>
-                </View>
-                <View style={styles.separator} />
-                
-                {/* Item de Rol */}
-                <View style={styles.infoItem}>
-                    <AntDesign name="skin" size={20} color={Colors.textSecondary} style={styles.itemIcon} />
-                    <View>
-                        <Text style={styles.label}>Rol:</Text>
-                        <Text style={styles.value}>{userEps.role || 'No especificado'}</Text>
-                    </View>
-                </View>
-                <View style={styles.separator} />
-
-                {/* Item de Email */}
-                <View style={styles.infoItem}>
-                    <Ionicons name="mail-outline" size={20} color={Colors.textSecondary} style={styles.itemIcon} />
-                    <View>
-                        <Text style={styles.label}>Email:</Text>
-                        <Text style={styles.value}>{userEps.email || 'No especificado'}</Text>
-                    </View>
-                </View>
-                <View style={styles.separator} />
-
-                {/* Item de Teléfono */}
-                <View style={styles.infoItem}>
-                    <Ionicons name="call-outline" size={20} color={Colors.textSecondary} style={styles.itemIcon} />
-                    <View>
-                        <Text style={styles.label}>Teléfono:</Text>
-                        <Text style={styles.value}>{userEps.phone || 'No especificado'}</Text>
-                    </View>
-                </View>
-                <View style={styles.separator} />
-
-                {/* Item de Tipo de Documento e Identificación */}
-                <View style={styles.infoItem}>
-                    <Ionicons name="document-text-outline" size={20} color={Colors.textSecondary} style={styles.itemIcon} />
-                    <View>
-                        <Text style={styles.label}>Tipo y Número de documento:</Text>
-                        <Text style={styles.value}>{userEps.identificationType || 'No especificado'} - {userEps.identificationNumber || 'No especificado'}</Text>
-                    </View>
-                </View>
-                <View style={styles.separator} />
-
-                {/* Item de Dirección */}
-                <View style={styles.infoItem}>
-                    <Ionicons name="location-outline" size={20} color={Colors.textSecondary} style={styles.itemIcon} />
-                    <View style={{ flexShrink: 1 }}> {/* Para que el texto largo se ajuste */}
-                        <Text style={styles.label}>Dirección:</Text>
-                        <Text style={styles.value}>{userEps.address || 'No especificado'}</Text>
-                    </View>
-                </View>
+                <InfoItem label="Estado" value={statusText} icon="pulse-outline" color={statusColor} />
+                <InfoItem label="Nombre" value={userEps.name} icon="person" />
+                <InfoItem label="Rol" value={userEps.role} iconPack="AntDesign" icon="skin" />
+                <InfoItem label="Email" value={userEps.email} icon="mail-outline" />
+                <InfoItem label="Teléfono" value={userEps.phone} icon="call-outline" />
+                <InfoItem
+                    label="Tipo y Número de Documento"
+                    value={`${userEps.identificationType} - ${userEps.identificationNumber}`}
+                    icon="document-text-outline"
+                />
+                <InfoItem label="Dirección" value={userEps.address} icon="location-outline" />
             </View>
 
-            {/* Fila de botones de acción (Editar y Eliminar) */}
             <View style={styles.buttonRow}>
-                <TouchableOpacity style={[styles.actionButton, styles.editButton]} onPress={handleEdit} activeOpacity={0.8}>
+                <TouchableOpacity style={[styles.actionButton, styles.editButton]} onPress={handleEdit}>
                     <Ionicons name="pencil-outline" size={22} color={Colors.cardBackground} />
                     <Text style={styles.actionButtonText}>Editar</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={[styles.actionButton, styles.deleteButton]} onPress={handleDelete} activeOpacity={0.8}>
+                <TouchableOpacity style={[styles.actionButton, styles.deleteButton]} onPress={handleDelete}>
                     <Ionicons name="trash-outline" size={22} color={Colors.cardBackground} />
                     <Text style={styles.actionButtonText}>Eliminar</Text>
                 </TouchableOpacity>
             </View>
         </ScrollView>
+    );
+}
+
+function InfoItem({ label, value, icon, iconPack = "Ionicons", color, }) {
+    const Icon = iconPack === "AntDesign" ? AntDesign : Ionicons;
+
+    return (
+        <>
+            <View style={styles.infoItem}>
+                <Icon name={icon} size={20} color={Colors.textSecondary} style={styles.itemIcon} />
+                <View style={{ flexShrink: 1 }}>
+                    <Text style={styles.label}>{label}:</Text>
+                    <Text style={[styles.value, color && { color }]}>{value || 'No especificado'}</Text>
+                </View>
+            </View>
+            <View style={styles.separator} />
+        </>
     );
 }
 
@@ -168,19 +117,16 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         padding: 20,
-        paddingBottom: 40, // Espacio adicional al final para el ScrollView
+        paddingBottom: 40,
     },
     header: {
         alignItems: 'center',
         marginBottom: 30,
-        paddingTop: 10, // Espacio superior para el encabezado
-    },
-    headerIcon: {
-        marginBottom: 10,
+        paddingTop: 10,
     },
     title: {
-        fontSize: 28, // Tamaño de fuente más grande para el título principal
-        fontWeight: '800', // Más negrita
+        fontSize: 28,
+        fontWeight: '800',
         color: Colors.textPrimary,
         textAlign: 'center',
         marginBottom: 5,
@@ -193,57 +139,56 @@ const styles = StyleSheet.create({
     },
     infoCard: {
         backgroundColor: Colors.cardBackground,
-        borderRadius: 15, // Bordes más redondeados
+        borderRadius: 15,
         paddingHorizontal: 20,
-        paddingVertical: 10, // Padding vertical un poco menor para los ítems
+        paddingVertical: 10,
         marginBottom: 30,
+        borderColor: Colors.border,
+        borderWidth: 1,
         shadowColor: Colors.shadow,
-        shadowOffset: { width: 0, height: 5 }, // Sombra más pronunciada para profundidad
+        shadowOffset: { width: 0, height: 5 },
         shadowOpacity: 0.15,
         shadowRadius: 10,
-        elevation: 8, // Elevación para Android
-        borderWidth: 1, // Borde sutil
-        borderColor: Colors.border,
+        elevation: 8,
     },
     infoItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 15, // Más padding vertical por cada item
+        paddingVertical: 15,
     },
     itemIcon: {
         marginRight: 15,
-        width: 25, // Ancho fijo para alinear iconos
+        width: 25,
         textAlign: 'center',
     },
     label: {
-        fontSize: 13, // Un poco más pequeño para la etiqueta
+        fontSize: 13,
         color: Colors.textSecondary,
-        fontWeight: '600', // Semibold para las etiquetas
+        fontWeight: '600',
         marginBottom: 2,
     },
     value: {
-        fontSize: 17, // Tamaño de fuente ligeramente más grande para el valor
+        fontSize: 17,
         color: Colors.textPrimary,
-        fontWeight: '500', // Medium
+        fontWeight: '500',
     },
     separator: {
         height: 1,
         backgroundColor: Colors.border,
-        marginVertical: 0, // Ajuste para que el separador esté justo entre los items
-        marginLeft: 40, // Alineado con el inicio del texto
+        marginLeft: 40,
     },
     buttonRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        gap: 15, // Espacio entre los botones
+        gap: 15,
     },
     actionButton: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 15, // Más padding vertical para botones más grandes
-        borderRadius: 10, // Bordes redondeados
+        paddingVertical: 15,
+        borderRadius: 10,
         shadowColor: Colors.shadow,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.2,
@@ -251,15 +196,15 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     editButton: {
-        backgroundColor: Colors.primary, // Usamos el azul principal para editar
+        backgroundColor: Colors.primary,
     },
     deleteButton: {
-        backgroundColor: Colors.danger, // Usamos el rojo para eliminar
+        backgroundColor: Colors.danger,
     },
     actionButtonText: {
-        color: Colors.cardBackground, // Texto blanco sobre los botones de color
+        color: Colors.cardBackground,
         fontSize: 17,
-        fontWeight: '700', // Negrita
-        marginLeft: 10, // Espacio entre el icono y el texto
+        fontWeight: '700',
+        marginLeft: 10,
     },
 });

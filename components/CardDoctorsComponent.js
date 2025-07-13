@@ -11,9 +11,9 @@ export default function CardDoctor({ doctors, onDetail, cardStyle, textStyle }) 
       <View style={styles.content}>
         {/* Icono a la izquierda del nombre del centro de salud */}
         <View style={styles.textContainer}>
-          <Text style={[styles.name, textStyle]}>{doctors.name}</Text>
+          <Text style={[styles.name, textStyle]}> 👨‍🔬 {doctors.name}</Text>
           <Text style={[styles.status, { color: statusColor }]}>
-            {statusText}
+           📊 {statusText}
           </Text>
         </View>
         {/* Nuevo icono para detalle */}
