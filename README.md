@@ -48,8 +48,8 @@ Asegúrate de tener instalado:
 1.  **Clona el repositorio:**
 
     ```bash
-    git clone <URL_DE_TU_REPOSITORIO>
-    cd nombre-del-proyecto
+    git clone https://github.com/esteban225/movile_eps.git
+    cd movile_eps
     ```
 
 2.  **Instala las dependencias:**
