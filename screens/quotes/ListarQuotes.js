@@ -18,25 +18,8 @@ import {
     listarQuotes,
     eliminarQuotes,
 } from '../../src/services/QuotesService'; // Ensure this path is correct
-
-// --- Modern & Clean Color Palette (Identical to ListarHealthCenters for consistency) ---
-const Colors = {
-    primary: '#4CAF50', // A vibrant, friendly green
-    primaryDark: '#388E3C', // A darker version for contrasts and FAB
-    accent: '#FFC107', // A bright yellow for highlighted actions or warnings
-    background: '#F0F2F5', // A very light gray for the general screen background
-    cardBackground: '#FFFFFF', // Pure white for cards and elevated elements
-    textPrimary: '#212121', // Dark charcoal for main text
-    textSecondary: '#757575', // Medium gray for secondary text or details
-    textLight: '#FFFFFF', // White for text on dark backgrounds
-    success: '#28A745', // Green for success (more standard)
-    danger: '#DC3545', // Red for destructive actions or errors (more standard)
-    shadow: 'rgba(0,0,0,0.1)', // Light shadow for a subtle effect
-    inputBorder: '#CFD8DC', // Softer color for input borders
-    textPlaceholder: '#9E9E9E', // Color for input placeholder and empty text
-    headerBackground: '#FFFFFF', // Header background
-    border: '#E0E0E0', // Subtle border for the header
-};
+import getColors from '../../components/ColorsStylesComponent'; // Ensure this path is correct
+const Colors = getColors();
 
 export default function ListarQuotes() {
     const [quotes, setQuotes] = useState([]);

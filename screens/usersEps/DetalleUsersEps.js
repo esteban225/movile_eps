@@ -4,17 +4,8 @@ import { Ionicons, AntDesign } from '@expo/vector-icons';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { eliminarUserEps } from '../../src/services/UsersEpsService';
 
-const Colors = {
-    background: '#F5F7FA',
-    cardBackground: '#FFFFFF',
-    primary: '#007AFF',
-    success: '#34C759',
-    danger: '#FF3B30',
-    textPrimary: '#1C1C1E',
-    textSecondary: '#6A6A6A',
-    border: '#E0E0E0',
-    shadow: 'rgba(0, 0, 0, 0.1)',
-};
+import getColors from '../../components/ColorsStylesComponent'; // Ensure this path is correct
+const Colors = getColors();
 
 export default function DetalleUsersEps() {
     const route = useRoute();

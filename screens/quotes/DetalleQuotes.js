@@ -6,17 +6,8 @@ import { listarUserEps, listarUsersEps } from '../../src/services/UsersEpsServic
 import { listarDoctors } from '../../src/services/DoctorsService'; // Nuevo
 import { eliminarQuote } from '../../src/services/QuotesService';
 
-const Colors = {
-    background: '#F5F7FA',
-    cardBackground: '#FFFFFF',
-    primary: '#007AFF',
-    success: '#34C759',
-    danger: '#FF3B30',
-    textPrimary: '#1C1C1E',
-    textSecondary: '#6A6A6A',
-    border: '#E0E0E0',
-    shadow: 'rgba(0, 0, 0, 0.1)',
-};
+import getColors from '../../components/ColorsStylesComponent'; // Ensure this path is correct
+const Colors = getColors();
 
 export default function DetalleQuotes() {
     const route = useRoute();

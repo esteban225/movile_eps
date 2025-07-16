@@ -18,21 +18,8 @@ import { Picker } from '@react-native-picker/picker';
 import { crearDoctor, editarDoctor } from '../../src/services/DoctorsService';
 import { listarHealthCenters } from "../../src/services/HealthCentersService";
 
-// Colores personalizados
-const Colors = {
-    primary: '#4CAF50',
-    primaryDark: '#388E3C',
-    background: '#F0F2F5',
-    cardBackground: '#FFFFFF',
-    textPrimary: '#212121',
-    textSecondary: '#757575',
-    textLight: '#FFFFFF',
-    danger: '#DC3545',
-    shadow: 'rgba(0,0,0,0.1)',
-    inputBorder: '#CFD8DC',
-    inputFocusBorder: '#9E9E9E',
-    textPlaceholder: '#9E9E9E',
-};
+import getColors from '../../components/ColorsStylesComponent'; // Ensure this path is correct
+const Colors = getColors();
 
 export default function DetalleDoctor({ navigation }) {
     const route = useRoute();
@@ -44,13 +31,13 @@ export default function DetalleDoctor({ navigation }) {
     const [phone, setPhone] = useState(doctors?.phone || "");
     const [identificationType, setIdentificationType] = useState(doctors?.identificationType || "CC");
     const [identificationNumber, setIdentificationNumber] = useState(doctors?.identificationNumber || "");
-    const [role, setUserRole] = useState(doctors?.role || "Afiliado");
-    const [status, setStatus] = useState(doctors?.status || "Activo");
+    const [role, setUserRole] = useState(doctors?.role || "");
+    const [status, setStatus] = useState(doctors?.status || "");
     const [address, setAddress] = useState(doctors?.address || "");
-
     const [healthCentersList, setHealthCentersList] = useState([]);
     const [loading, setLoading] = useState(false);
     const esEdicion = !!doctors;
+    const [emailError, setEmailError] = useState("");
 
     const identificationTypes = [
         { label: "Cédula de Ciudadanía", value: "CC" },
@@ -70,6 +57,16 @@ export default function DetalleDoctor({ navigation }) {
         { label: "Activo", value: "1" },
         { label: "Inactivo", value: "0" },
     ];
+
+    const validateEmail = (text) => {
+        setEmail(text);
+        if (!text.includes('@')) {
+            setEmailError("El correo electrónico no es valido");
+        } else {
+            setEmailError("");
+        }
+    }
+
 
     useEffect(() => {
         const loadHealthCenters = async () => {
@@ -114,13 +111,13 @@ export default function DetalleDoctor({ navigation }) {
                 : await crearDoctor(data);
 
             if (result.success) {
-                Alert.alert("Éxito", esEdicion ? "Usuario actualizado." : "Usuario creado.");
-                navigation.goBack();
+                Alert.alert("Éxito", esEdicion ? "Doctor actualizado." : "Doctor creado.");
+                navigation.navigate("ListarDoctors");
             } else {
-                Alert.alert("Error", result.message || "No se pudo guardar el usuario.");
+                Alert.alert("Error", result.message || "No se pudo guardar el Doctor.");
             }
         } catch (error) {
-            console.error("Error al guardar usuario:", error);
+            console.error("Error al guardar Doctor:", error);
             Alert.alert("Error", error.message || "Error inesperado al guardar.");
         } finally {
             setLoading(false);
@@ -136,7 +133,7 @@ export default function DetalleDoctor({ navigation }) {
             <ScrollView contentContainerStyle={styles.scrollViewContent}>
                 <View style={styles.container}>
                     <Text style={styles.title}>
-                        {esEdicion ? "Editar Usuario EPS" : "Nuevo Usuario EPS"}
+                        {esEdicion ? "Editar Doctor " : "Nuevo Doctor "}
                     </Text>
 
                     {/* Health Center Picker */}
@@ -167,10 +164,11 @@ export default function DetalleDoctor({ navigation }) {
                         placeholder="Email"
                         placeholderTextColor={Colors.textPlaceholder}
                         value={email}
-                        onChangeText={setEmail}
+                        onChangeText={validateEmail}
                         keyboardType="email-address"
                         autoCapitalize="none"
                     />
+                    {emailError ? <Text style={{ color: Colors.danger }}>{emailError}</Text> : null}
                     <TextInput
                         style={styles.input}
                         placeholder="Teléfono"
@@ -204,7 +202,7 @@ export default function DetalleDoctor({ navigation }) {
                     />
 
                     <View style={styles.pickerContainer}>
-                        <Text style={styles.pickerLabel}>Tipo de Usuario</Text>
+                        <Text style={styles.pickerLabel}>Tipo de Doctor</Text>
                         <Picker
                             selectedValue={role}
                             onValueChange={setUserRole}
@@ -232,13 +230,11 @@ export default function DetalleDoctor({ navigation }) {
                     </View>
 
                     <TextInput
-                        style={[styles.input, styles.textArea]}
+                        style={[styles.input]}
                         placeholder="Dirección"
                         placeholderTextColor={Colors.textPlaceholder}
                         value={address}
                         onChangeText={setAddress}
-                        multiline
-                        numberOfLines={4}
                         textAlignVertical="top"
                     />
 
@@ -252,7 +248,7 @@ export default function DetalleDoctor({ navigation }) {
                             <ActivityIndicator color={Colors.textLight} />
                         ) : (
                             <Text style={styles.textoBoton}>
-                                {esEdicion ? "Guardar cambios" : "Crear Usuario"}
+                                {esEdicion ? "Guardar cambios" : "Crear Doctor"}
                             </Text>
                         )}
                     </TouchableOpacity>
@@ -265,6 +261,8 @@ export default function DetalleDoctor({ navigation }) {
 const styles = StyleSheet.create({
     scrollViewContent: {
         flexGrow: 1,
+        justifyContent: 'center',
+        padding: 60,
     },
     container: {
         flex: 1,

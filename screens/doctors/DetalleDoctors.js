@@ -4,18 +4,8 @@ import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { eliminarDoctor } from '../../src/services/DoctorsService'; // Asegúrate de que esta ruta sea correcta
 
-// --- Paleta de Colores Moderna y Consistente ---
-const Colors = {
-    background: '#F5F7FA', // Un gris muy claro, casi blanco para el fondo principal
-    cardBackground: '#FFFFFF', // Blanco puro para los contenedores de información
-    primary: '#007AFF', // Un azul vibrante, moderno y amigable
-    success: '#34C759', // Verde para estados activos o éxito
-    danger: '#FF3B30', // Rojo para estados inactivos o acciones destructivas
-    textPrimary: '#1C1C1E', // Gris oscuro casi negro para el texto principal
-    textSecondary: '#6A6A6A', // Gris medio para etiquetas o texto secundario
-    border: '#E0E0E0', // Un gris claro para bordes sutiles
-    shadow: 'rgba(0, 0, 0, 0.1)', // Sombra ligera
-};
+import getColors from '../../components/ColorsStylesComponent'; // Ensure this path is correct
+const Colors = getColors();
 
 export default function DetalleDoctor() {
     const route = useRoute();

@@ -95,6 +95,10 @@ export default function ProfileScreen({ navigation }) {
     );
   }
 
+  const handleEditProfile = () => {
+    navigation.navigate("editarPerfil");
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -114,7 +118,7 @@ export default function ProfileScreen({ navigation }) {
           <View style={styles.profileButtonContainer}>
             <BottonComponent
               title="Editar Perfil"
-              onPress={() => Alert.alert("Función no disponible", "Esta función estará disponible pronto.")}
+              onPress={handleEditProfile}
               buttonStyle={styles.editProfileButton}
               textStyle={styles.buttonText}
             />

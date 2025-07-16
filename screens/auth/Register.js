@@ -10,7 +10,18 @@ export default function RegistroScreen({ navigation }) {
   const [confirmarPassword, setConfirmarPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  //validacion del correo electrónico
+  const [emailError, setEmailError] = useState("");
+  const validateEmail = (text) => {
+    setEmail(text);
+    if (!text.includes('@')) {
+      setEmailError("El correo electrónico no es valido");
+    } else {
+      setEmailError("");
+    }
+  }
   const handleRegister = async () => {
+
     if (password !== confirmarPassword) {
       Alert.alert("Error", "Las contraseñas no coinciden");
       return;
@@ -21,6 +32,9 @@ export default function RegistroScreen({ navigation }) {
       const result = await registerUser(nombre, email, password);
       if (result.success) {
         navigation.navigate("Login");
+      } else {
+        Alert.alert("Error", result.message || "Ocurrió un error al registrar el usuario");
+        console.error(result.error); // Log the error for debugging
       }
     } catch (error) {
       Alert.alert("Error", "Ocurrió un error inesperado", [
@@ -45,11 +59,12 @@ export default function RegistroScreen({ navigation }) {
           editable={!loading}
           placeholderTextColor="#999"
         />
+        {emailError ? <Text style={{ color: '#DC3545' }}>{emailError}</Text> : null}
         <TextInput
           style={styles.input}
           placeholder="Correo electrónico"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={validateEmail}
           keyboardType="email-address"
           autoCapitalize="none"
           editable={!loading}

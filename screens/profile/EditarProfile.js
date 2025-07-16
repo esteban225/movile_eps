@@ -12,28 +12,34 @@ import {
     Platform,
 } from "react-native";
 import { useRoute } from '@react-navigation/native';
-import { Picker } from '@react-native-picker/picker';
 
 // API services
-import { crearUserEps, editarUserEps } from '../../src/services/UsersEpsService';
-import { listarHealthCenters } from "../../src/services/HealthCentersService";
+import { crearuser, editaruser } from '../../src/services/UsersEpsService';
 
-import getColors from '../../components/ColorsStylesComponent'; // Ensure this path is correct
-const Colors = getColors();
+// Colores personalizados
+const Colors = {
+    primary: '#4CAF50',
+    primaryDark: '#388E3C',
+    background: '#F0F2F5',
+    cardBackground: '#FFFFFF',
+    textPrimary: '#212121',
+    textSecondary: '#757575',
+    textLight: '#FFFFFF',
+    danger: '#DC3545',
+    shadow: 'rgba(0,0,0,0.1)',
+    inputBorder: '#CFD8DC',
+    inputFocusBorder: '#9E9E9E',
+    textPlaceholder: '#9E9E9E',
+};
 
-export default function DetalleUserEps({ navigation }) {
+export default function EditarProfile({ navigation }) {
     const route = useRoute();
-    const userEps = route.params?.userEps;
+    const user = route.params?.user;
 
-    const [healthcenters_id, setHealthCenterId] = useState(userEps?.healthcenters_id?.toString() || "");
-    const [name, setName] = useState(userEps?.name || "");
-    const [email, setEmail] = useState(userEps?.email || "");
-    const [phone, setPhone] = useState(userEps?.phone || "");
-    const [identificationType, setIdentificationType] = useState(userEps?.identificationType || "CC");
-    const [identificationNumber, setIdentificationNumber] = useState(userEps?.identificationNumber.toString() || "");
-    const [role, setUserRole] = useState(userEps?.role || "Afiliado");
-    const [status, setStatus] = useState(userEps?.status || "Activo");
-    const [address, setAddress] = useState(userEps?.address || "");
+    const [name, setName] = useState(user?.name || "");
+    const [email, setEmail] = useState(user?.email || "");
+    const [phone, setPhone] = useState(user?.phone || "");
+    const [address, setAddress] = useState(user?.address || "");
 
 
     //validacion del correo electrónico
@@ -47,16 +53,10 @@ export default function DetalleUserEps({ navigation }) {
         }
     }
 
-    const [healthCentersList, setHealthCentersList] = useState([]);
     const [loading, setLoading] = useState(false);
-    const esEdicion = !!userEps;
+    const esEdicion = !!user;
 
-    const identificationTypes = [
-        { label: "Cédula de Ciudadanía", value: "CC" },
-        { label: "Tarjeta de Identidad", value: "TI" },
-        { label: "Pasaporte", value: "PAS" },
-        { label: "Cédula de Extranjería", value: "CE" },
-    ];
+
 
     const roles = [
         { label: "Afiliado", value: "Afiliado" },
@@ -65,31 +65,8 @@ export default function DetalleUserEps({ navigation }) {
         { label: "Soporte", value: "Soporte" },
     ];
 
-    const userStatuses = [
-        { label: "Activo", value: "1" },
-        { label: "Inactivo", value: "0" },
-    ];
-
-    useEffect(() => {
-        const loadHealthCenters = async () => {
-            try {
-                const result = await listarHealthCenters();
-                if (result.success && Array.isArray(result.data)) {
-                    setHealthCentersList(result.data);
-                } else {
-                    console.error("Error al cargar centros de salud:", result.message);
-                    Alert.alert("Error", result.message || "Error al cargar los centros de salud.");
-                }
-            } catch (error) {
-                console.error("Error inesperado:", error);
-                Alert.alert("Error", error.message || "Error inesperado al cargar los centros.");
-            }
-        };
-        loadHealthCenters();
-    }, []);
-
     const handleGuardar = async () => {
-        if (!name || !email || !phone || !identificationType || !identificationNumber || !role || !status || !address || !healthcenters_id) {
+        if (!name || !email || !phone || !address) {
             Alert.alert("Campos requeridos", "Por favor, complete todos los campos.");
             return;
         }
@@ -97,24 +74,19 @@ export default function DetalleUserEps({ navigation }) {
         setLoading(true);
         try {
             const data = {
-                healthcenters_id,
                 name,
                 email,
                 phone,
-                identificationType,
-                identificationNumber,
-                role: role,
-                status,
                 address
             };
 
             const result = esEdicion
-                ? await editarUserEps(userEps.id, data)
-                : await crearUserEps(data);
+                ? await editaruser(user.id, data)
+                : await crearuser(data);
 
             if (result.success) {
                 Alert.alert("Éxito", esEdicion ? "Usuario actualizado." : "Usuario creado.");
-                navigation.navigate('ListarUserEps');
+                navigation.navigate('Listaruser');
             } else {
                 Alert.alert("Error", result.message || "No se pudo guardar el usuario.");
             }
@@ -137,22 +109,6 @@ export default function DetalleUserEps({ navigation }) {
                     <Text style={styles.title}>
                         {esEdicion ? "Editar Usuario EPS" : "Nuevo Usuario EPS"}
                     </Text>
-
-                    {/* Health Center Picker */}
-                    <View style={styles.pickerContainer}>
-                        <Text style={styles.pickerLabel}>Seleccione un asociado</Text>
-                        <Picker
-                            selectedValue={healthcenters_id}
-                            onValueChange={(itemValue) => setHealthCenterId(itemValue)}
-                            style={styles.picker}
-                            itemStyle={styles.pickerItem}
-                        >
-                            <Picker.Item label="-- Seleccione --" value="" />
-                            {healthCentersList.map((center) => (
-                                <Picker.Item key={center.id} label={center.name} value={String(center.id)} />
-                            ))}
-                        </Picker>
-                    </View>
 
                     <TextInput
                         style={styles.input}
@@ -180,57 +136,6 @@ export default function DetalleUserEps({ navigation }) {
                         onChangeText={setPhone}
                         keyboardType="phone-pad"
                     />
-
-                    <View style={styles.pickerContainer}>
-                        <Text style={styles.pickerLabel}>Tipo de Identificación</Text>
-                        <Picker
-                            selectedValue={identificationType}
-                            onValueChange={setIdentificationType}
-                            style={styles.picker}
-                            itemStyle={styles.pickerItem}
-                        >
-                            {identificationTypes.map((item, index) => (
-                                <Picker.Item key={index} label={item.label} value={item.value} />
-                            ))}
-                        </Picker>
-                    </View>
-
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Número de Identificación"
-                        placeholderTextColor={Colors.textPlaceholder}
-                        value={identificationNumber}
-                        onChangeText={setIdentificationNumber}
-                        keyboardType="phone-pad"
-                    />
-
-                    <View style={styles.pickerContainer}>
-                        <Text style={styles.pickerLabel}>Tipo de Usuario</Text>
-                        <Picker
-                            selectedValue={role}
-                            onValueChange={setUserRole}
-                            style={styles.picker}
-                            itemStyle={styles.pickerItem}
-                        >
-                            {roles.map((item, index) => (
-                                <Picker.Item key={index} label={item.label} value={item.value} />
-                            ))}
-                        </Picker>
-                    </View>
-
-                    <View style={styles.pickerContainer}>
-                        <Text style={styles.pickerLabel}>Estado</Text>
-                        <Picker
-                            selectedValue={status}
-                            onValueChange={setStatus}
-                            style={styles.picker}
-                            itemStyle={styles.pickerItem}
-                        >
-                            {userStatuses.map((item, index) => (
-                                <Picker.Item key={index} label={item.label} value={item.value} />
-                            ))}
-                        </Picker>
-                    </View>
 
                     <TextInput
                         style={[styles.input]}

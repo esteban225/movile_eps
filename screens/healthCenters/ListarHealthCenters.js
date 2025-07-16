@@ -18,24 +18,8 @@ import {
   eliminarHealthCenters,
   listarHealthCenters,
 } from '../../src/services/HealthCentersService';
-
-// --- Paleta de Colores Moderna y Limpia (ajustada para mayor consistencia) ---
-const Colors = {
-  primary: '#4CAF50', // Un verde vibrante y amigable
-  primaryDark: '#388E3C', // Una versión más oscura para contrastes y FAB
-  accent: '#FFC107', // Un amarillo brillante para acciones destacadas o advertencias
-  background: '#F0F2F5', // Un gris muy claro para el fondo general de la pantalla
-  cardBackground: '#FFFFFF', // Blanco puro para las tarjetas y elementos elevados
-  textPrimary: '#212121', // Gris oscuro casi negro para el texto principal
-  textSecondary: '#757575', // Gris medio para texto secundario o detalles
-  textLight: '#FFFFFF', // Blanco para texto sobre fondos oscuros
-  success: '#28A745', // Verde para éxito (ligeramente más estándar)
-  danger: '#DC3545', // Rojo para acciones destructivas o errores (ligeramente más estándar)
-  shadow: 'rgba(0,0,0,0.1)', // Sombra ligera para un efecto sutil
-  inputBorder: '#CFD8DC', // Color más suave para el borde del input
-  textPlaceholder: '#9E9E9E', // Color para el placeholder del input y texto vacío
-  headerBackground: '#FFFFFF', // Fondo del encabezado (si se añade un título fijo)
-};
+import getColors from '../../components/ColorsStylesComponent'; // Ensure this path is correct
+const Colors = getColors();
 
 export default function ListarHealthCenters() {
   const [healthCenters, setHealthCenters] = useState([]);

@@ -1,11 +1,24 @@
 import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, ActivityIndicator } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { loginUser } from "../../src/services/AuthService";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+
+  //validacion del correo electrónico
+  const [emailError, setEmailError] = useState("");
+  const validateEmail = (text) => {
+    setEmail(text);
+    if (!text.includes('@')) {
+      setEmailError("El correo electrónico no es valido");
+    } else {
+      setEmailError("");
+    }
+  }
+
 
   const handleLogin = async () => {
     setLoading(true);
@@ -19,9 +32,11 @@ export default function LoginScreen({ navigation }) {
               console.log("Login exitoso, redirigiendo automaticamente ...."),
           },
         ]);
+      } else {
+        Alert.alert('Error al ingresar', result.message)
       }
     } catch (error) {
-      Alert.alert("Error", "Ocurrió un error inesperado", [
+      Alert.alert("Error", "Ocurrió un error inesperado", error ,[
         { text: "OK", onPress: () => console.log(error) },
       ]);
     } finally {
@@ -34,12 +49,12 @@ export default function LoginScreen({ navigation }) {
       <View style={styles.card}>
         <Text style={styles.title}>Bienvenido</Text>
         <Text style={styles.subtitle}>Inicia sesión para continuar</Text>
-
+        {emailError ? <Text style={{ color: '#DC3545' }}>{emailError}</Text> : null}
         <TextInput
           style={styles.input}
           placeholder="Correo electrónico"
           value={email}
-          onChangeText={setEmail}
+          onChangeText={validateEmail}
           keyboardType="email-address"
           autoCapitalize="none"
           placeholderTextColor="#999"

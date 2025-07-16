@@ -11,6 +11,7 @@ export const registerUser = async (name, email, password) => {
     console.error("Error al iniciar sesión:",
       error.response ? error.response.data : error.message
     );
+    Alert.alert("Error","Ocurrio un error al registrar el usuario", error.response ? error.response.data : error.message)
     return {
       success: false,
       message: error.response ? error.response.data.message : "Error de conexión"

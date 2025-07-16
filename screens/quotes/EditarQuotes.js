@@ -19,20 +19,8 @@ import { crearQuote, editarQuote } from "../../src/services/QuotesService";
 import { listarDoctors } from "../../src/services/DoctorsService";
 import { listarUserEps } from "../../src/services/UsersEpsService";
 
-const Colors = {
-    primary: '#4CAF50',
-    primaryDark: '#388E3C',
-    background: '#F0F2F5',
-    cardBackground: '#FFFFFF',
-    textPrimary: '#212121',
-    textSecondary: '#757575',
-    textLight: '#FFFFFF',
-    danger: '#DC3545',
-    shadow: 'rgba(0,0,0,0.1)',
-    inputBorder: '#CFD8DC',
-    inputFocusBorder: '#9E9E9E',
-    textPlaceholder: '#9E9E9E',
-};
+import getColors from '../../components/ColorsStylesComponent'; // Ensure this path is correct
+const Colors = getColors();
 
 export default function EditarQuotes() {
     const route = useRoute();
@@ -146,7 +134,7 @@ export default function EditarQuotes() {
                         value={observations}
                         onChangeText={setObservations}
                         multiline
-                        numberOfLines={3}
+                        numberOfLines={2}
                         textAlignVertical="top"
                     />
 
@@ -215,7 +203,11 @@ export default function EditarQuotes() {
 }
 
 const styles = StyleSheet.create({
-    scrollViewContent: { flexGrow: 1 },
+    scrollViewContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        padding: 60,
+    },
     container: {
         flex: 1,
         padding: 20,

@@ -18,19 +18,24 @@ export default function CardUserEps({ userEps, onDetail, cardStyle, textStyle })
     // pero basado en el ejemplo de HealthCenters, no parece que UserEps tenga un 'status' directo.
     // Solo mostramos nombre e ID.
 
+    const statusText = userEps.status === 1 ? 'Activo' : 'Inactivo';
+    const statusColor = userEps.status === 1 ? '#28a745' : '#dc3545'; // Colores más suaves para activo/inactivo
+
     return (
         <TouchableOpacity style={styles.card} onPress={onDetail} activeOpacity={0.85}>
             <View style={styles.content}>
                 <View style={styles.textContainer}>
                     <Text style={styles.name}>🙋 {userEps.name}</Text>
                     {/* Concatenamos ID y número de identificación en una sola línea */}
-                    <Text style={styles.identification}>🪪 {userEps.identificationNumber}</Text>
+                    <Text style={[styles.status, { color: statusColor }]}>
+                        📊 {statusText}
+                    </Text>
                 </View>
 
                 {/* Acciones de Edición y Eliminación como iconos */}
                 <View style={styles.actions}>
-                <Ionicons name="information-circle-outline" size={26} color="#efaf0cff" /> 
-        
+                    <Ionicons name="information-circle-outline" size={26} color="#efaf0cff" />
+
                 </View>
             </View>
         </TouchableOpacity>

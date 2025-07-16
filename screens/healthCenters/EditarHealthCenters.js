@@ -16,18 +16,8 @@ import { useRoute } from '@react-navigation/native';
 import { crearHealthCenters, editarHealthCenters } from "../../src/services/HealthCentersService";
 import { Ionicons } from '@expo/vector-icons'; // For icons in the button
 
-// --- Modern and Clean Color Palette ---
-const Colors = {
-    background: '#F5F7FA', // Lightest gray for the screen background
-    cardBackground: '#FFFFFF', // Pure white for form fields and elevated elements
-    primary: '#007AFF', // A vibrant, modern blue for main actions
-    primaryDark: '#005BBF', // A darker shade of primary for button active states
-    textPrimary: '#1C1C1E', // Dark charcoal for main text
-    textSecondary: '#6A6A6A', // Medium gray for labels and placeholders
-    inputBorder: '#E0E0E0', // Light gray for input borders
-    shadow: 'rgba(0, 0, 0, 0.08)', // Subtle shadow
-    danger: '#FF3B30', // Red for destructive actions (if needed)
-};
+import getColors from '../../components/ColorsStylesComponent'; // Ensure this path is correct
+const Colors = getColors();
 
 export default function EditarHealthCenters({ navigation }) {
     const route = useRoute();
@@ -40,6 +30,17 @@ export default function EditarHealthCenters({ navigation }) {
     const [status, setStatus] = useState(healthCenter?.status?.toString() || "1");
     const [address, setAddress] = useState(healthCenter?.address || "");
     const [loading, setLoading] = useState(false);
+
+    //validacion del correo electrónico
+    const [emailError, setEmailError] = useState("");
+    const validateEmail = (text) => {
+        setEmail(text);
+        if (!text.includes('@')) {
+            setEmailError("El correo electrónico no es valido");
+        } else {
+            setEmailError("");
+        }
+    }
 
     const esEdicion = !!healthCenter;
 
@@ -85,7 +86,7 @@ export default function EditarHealthCenters({ navigation }) {
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 20} // Adjust offset as needed
         >
-            <ScrollView contentContainerStyle={styles.container}>
+            <ScrollView contentContainerStyle={styles.scrollViewContent}>
                 <Text style={styles.title}>
                     {esEdicion ? "Editar Centro de Salud" : "Nuevo Centro de Salud"}
                 </Text>
@@ -102,13 +103,14 @@ export default function EditarHealthCenters({ navigation }) {
 
                 {/* Email Input */}
                 <Text style={styles.label}>Correo electrónico</Text>
+                {emailError ? <Text style={{ color: Colors.danger }}>{emailError}</Text> : null}
                 <TextInput
                     style={styles.input}
                     placeholder="ejemplo@dominio.com"
                     placeholderTextColor={Colors.textSecondary}
                     keyboardType="email-address"
                     value={email}
-                    onChangeText={setEmail}
+                    onChangeText={validateEmail}
                     autoCapitalize="none" // Prevent auto-capitalization for emails
                 />
 
@@ -150,13 +152,11 @@ export default function EditarHealthCenters({ navigation }) {
                 {/* Address Input (TextArea) */}
                 <Text style={styles.label}>Dirección</Text>
                 <TextInput
-                    style={[styles.input, styles.textArea]}
+                    style={[styles.input]}
                     placeholder="Dirección completa del centro"
                     placeholderTextColor={Colors.textSecondary}
                     value={address}
                     onChangeText={setAddress}
-                    multiline
-                    numberOfLines={4} // Give more lines for better visual
                 />
 
                 {/* Save Button */}
@@ -170,9 +170,8 @@ export default function EditarHealthCenters({ navigation }) {
                         <ActivityIndicator color={Colors.textLight} />
                     ) : (
                         <>
-                            <Ionicons name="save-outline" size={20} color={Colors.textLight} style={styles.buttonIcon} />
                             <Text style={styles.buttonText}>
-                                {esEdicion ? "Guardar Cambios" : "Crear Centro de Salud"}
+                                {esEdicion ? "Guardar Cambios" : "Crear"}
                             </Text>
                         </>
                     )}
@@ -183,6 +182,12 @@ export default function EditarHealthCenters({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+
+    scrollViewContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        padding: 60,
+    },
     container: {
         flexGrow: 1,
         padding: 20,
